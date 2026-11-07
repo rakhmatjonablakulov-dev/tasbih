@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Тасбеҳ Тапалка</title>
-    <!-- Подключаем Telegram Web App скрипт -->
+    <title>Мукаммал Тасбеҳ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -21,33 +20,61 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 30px 20px;
+            padding: 20px;
             overflow: hidden;
         }
         .header {
             text-align: center;
+            width: 100%;
         }
         .title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 5px;
             color: #00d2ff;
+            margin-bottom: 10px;
         }
-        .subtitle {
-            font-size: 14px;
+        /* Стили для выбора зикра (горизонтальный скролл) */
+        .zikr-selector {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            width: 100%;
+            padding: 5px 0;
+            scrollbar-width: none; /* Firefox */
+        }
+        .zikr-selector::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+        .zikr-tab {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #a0aec0;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .zikr-tab.active {
+            background: #00d2ff;
+            color: #0f2027;
+            font-weight: bold;
+            border-color: #00d2ff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
         }
         .counter-container {
             text-align: center;
+            margin: auto 0;
         }
         .counter-value {
-            font-size: 70px;
+            font-size: 75px;
             font-weight: 700;
             color: #ffffff;
             text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
         }
         .counter-label {
-            font-size: 16px;
+            font-size: 15px;
             color: #cbd5e0;
             margin-top: 5px;
         }
@@ -56,11 +83,11 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            flex-grow: 1;
+            margin-bottom: 20px;
         }
         .tap-button {
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             background: linear-gradient(145deg, #00b4db, #0083b0);
             border: none;
@@ -70,7 +97,7 @@
             justify-content: center;
             align-items: center;
             color: white;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: bold;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             outline: none;
@@ -95,7 +122,6 @@
             border-radius: 12px;
             font-size: 14px;
             cursor: pointer;
-            transition: background 0.2s;
         }
         .reset-btn:active {
             background: rgba(255, 255, 255, 0.2);
@@ -105,13 +131,20 @@
 <body>
 
     <div class="header">
-        <div class="title">📿 Субҳаналлоҳ</div>
-        <div class="subtitle">Зикрлар ҳисоблагичи</div>
+        <div class="title">📿 Мукаммал Тасбеҳ</div>
+        <!-- Список кнопок переключения зикров -->
+        <div class="zikr-selector" id="zikrSelector">
+            <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
+            <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
+            <div class="zikr-tab" data-index="2">Ла илаҳа иллаллоҳ</div>
+            <div class="zikr-tab" data-index="3">Астағфируллоҳ</div>
+            <div class="zikr-tab" data-index="4">Саловат</div>
+        </div>
     </div>
 
     <div class="counter-container">
         <div class="counter-value" id="counter">0</div>
-        <div class="counter-label">марта ўқилди</div>
+        <div class="counter-label" id="zikrLabel">Субҳаналлоҳ</div>
     </div>
 
     <div class="tap-button-container">
@@ -123,34 +156,76 @@
     </div>
 
     <script>
-        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let count = localStorage.getItem('tasbih_count') ? parseInt(localStorage.getItem('tasbih_count')) : 0;
-        
+        // Массив зикров
+        const zikrs = [
+            { name: "Субҳаналлоҳ", key: "tasbih_subhanallah" },
+            { name: "Алҳамдулиллаҳ", key: "tasbih_alhamdulillah" },
+            { name: "Ла илаҳа иллаллоҳ", key: "tasbih_lailaha" },
+            { name: "Астағфируллоҳ", key: "tasbih_astagfirullah" },
+            { name: "Саловат", key: "tasbih_salovat" }
+        ];
+
+        let currentZikrIndex = 0;
+
         const counterDisplay = document.getElementById('counter');
+        const zikrLabel = document.getElementById('counterLabel');
         const tapBtn = document.getElementById('tapBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const tabs = document.querySelectorAll('.zikr-tab');
 
-        counterDisplay.textContent = count;
-
-        tapBtn.addEventListener('click', () => {
-            count++;
+        // Функция загрузки текущего зикра
+        function loadCurrentZikr() {
+            const zikr = zikrs[currentZikrIndex];
+            let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
             counterDisplay.textContent = count;
-            localStorage.setItem('tasbih_count', count);
+            zikrLabel.textContent = zikr.name;
 
-            // Вибрация в Telegram (если поддерживается)
+            // Обновляем активную вкладку
+            tabs.forEach((tab, idx) => {
+                if (idx === currentZikrIndex) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        loadCurrentZikr();
+
+        // Переключение по вкладкам
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                currentZikrIndex = parseInt(tab.getAttribute('data-index'));
+                loadCurrentZikr();
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.selectionChanged();
+                }
+            });
+        });
+
+        // Клик по главной кнопке тапалки
+        tapBtn.addEventListener('click', () => {
+            const zikr = zikrs[currentZikrIndex];
+            let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
+            count++;
+            
+            localStorage.setItem(zikr.key, count);
+            counterDisplay.textContent = count;
+
             if (tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('medium');
             }
         });
 
+        // Сброс счетчика текущего зикра
         resetBtn.addEventListener('click', () => {
-            if (confirm("Ҳисобни ноллашни хоҳлайсизми?")) {
-                count = 0;
-                counterDisplay.textContent = count;
-                localStorage.setItem('tasbih_count', count);
+            const zikr = zikrs[currentZikrIndex];
+            if (confirm(`"${zikr.name}" ҳисобини ноллашни хоҳлайсизми?`)) {
+                localStorage.setItem(zikr.key, 0);
+                counterDisplay.textContent = 0;
                 if (tg.HapticFeedback) {
                     tg.HapticFeedback.notificationOccurred('success');
                 }
