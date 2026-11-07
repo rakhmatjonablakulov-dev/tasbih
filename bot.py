@@ -1,47 +1,45 @@
 import asyncio
 import logging
 import sys
-import os
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+
+from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
+from aiogram.types import Message, WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 
-TOKEN = os.getenv("BOT_TOKEN")
-WEB_APP_URL = "https://your-mini-app-url.com"  # Позже заменим на ссылку фронтенда
+# Токен вашего бота (лучше хранить в Render в Environment Variables, но для теста можно и здесь)
+TOKEN = "9078865133:AAEoI6LiCGLb2X-vs95b-qHAIAEx57VDquk"
 
-bot = Bot(token=TOKEN)
+# Ваша готовая ссылка на GitHub Pages
+WEB_APP_URL = "https://rakhmatjonablakulov-dev.github.io/tasbih/"
+
 dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    user_name = message.from_user.first_name
-    
+    # Создаем кнопку, которая открывает Web App (Мини-приложение)
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="📿 Тасбеҳни очиш / Открыть Тасбих", 
+                    text="📿 Тасбеҳни бошлаш", 
                     web_app=WebAppInfo(url=WEB_APP_URL)
                 )
             ]
         ]
     )
     
-    welcome_text = (
-        f"Ассалому алайкум, <b>{user_name}</b>!\n\n"
-        f"Бу тасбеҳ тапалка боти орқали сиз зикрлар қилиб, "
-        f"шахсий ҳисобингизни юритишингиз мумкин.\n\n"
-        f"Ўйинни бошлаш учун пастдаги тугмани босинг 👇"
+    await message.answer(
+        f"Ассалому алайкум, <b>{message.from_user.full_name}</b>!\n\n"
+        "Бугунги зикрларингизни биз билан укинг. "
+        "Қуйидаги тугмани босиб тасбеҳни очинг 👇",
+        reply_markup=keyboard,
+        parse_mode="HTML"
     )
-    
-    await message.answer(welcome_text, reply_markup=keyboard, parse_mode="HTML")
 
 async def main() -> None:
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    bot = Bot(token=TOKEN)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Бот остановлен!")
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    asyncio.run(main())
