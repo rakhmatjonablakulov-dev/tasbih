@@ -6,13 +6,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-# Читаем настройки из переменных окружения Render (Environment Variables)
-TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ваш-сайт.onrender.com")
-
-if not TOKEN:
-    raise ValueError("❌ BOT_TOKEN токен топлмади! Render'да созламаларни текширинг.")
+# Настройки бота
+TOKEN = os.getenv("BOT_TOKEN", "9078865133:AAEoI6LiCGLb2X-vs95b-qHAIAEx57VDquk")
+ADMIN_ID = 8274122612
+WEBAPP_URL = "https://rakhmatjonablakulov-dev.github.io/tasbih/"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -21,12 +18,12 @@ dp = Dispatcher()
 class WithdrawStates(StatesGroup):
     waiting_for_details = State()
 
-# Главное нижнее меню (5 пунктов)
+# Главное нижнее меню (5 пунктов с обновленными названиями)
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📿 Тасбеҳ")
-    builder.button(text="💰 Вывод")
-    builder.button(text="👥 Рефераллар")
+    builder.button(text="💳 Пул чиқариш")
+    builder.button(text="👥 Дўстларни таклиф қилиш")
     builder.button(text="📋 Вазифалар")
     builder.button(text="⭐ Рекламани кўриш")
     builder.adjust(2, 2, 1)
@@ -38,7 +35,7 @@ async def cmd_start(message: types.Message):
     user_name = message.from_user.first_name
     await message.answer(
         f"✨ Ассалому алайкум, <b>{user_name}</b>!\n\n"
-        "Муборак Тасбеҳ ботига хуш келибсиз. Аллоҳнинг зикрини қилинг, вазифаларни бажаринг ва савобларга эришинг. 🌙",
+        "Муборак Тасбеҳ ботига хуш келибсиз. 🌙",
         reply_markup=get_main_menu(),
         parse_mode="HTML"
     )
@@ -54,11 +51,11 @@ async def open_tasbih(message: types.Message):
         reply_markup=builder.as_markup()
     )
 
-# 2. Кнопка "Вывод" — старт процесса
-@dp.message(lambda msg: msg.text == "💰 Вывод")
+# 2. Кнопка "Пул чиқариш" — старт процесса
+@dp.message(lambda msg: msg.text == "💳 Пул чиқариш")
 async def process_withdrawal(message: types.Message, state: FSMContext):
     await message.answer(
-        "💰 <b>Баланс ва Вывод сўрови</b>\n\n"
+        "💳 <b>Пул чиқариш сўрови</b>\n\n"
         "Ҳурматли фойдаланувчи! Тўплаган балларни курс бўйича ечиб олиш учун карта рақамингизни ёки тўлов тизимини юборинг.\n\n"
         "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф)</i>\n\n"
         "Бекор қилиш учун /cancel ни босинг.",
@@ -79,7 +76,7 @@ async def receive_withdrawal_details(message: types.Message, state: FSMContext):
     details = message.text
     
     admin_text = (
-        f"🔔 <b>Янги вывод сўрови! (Тасбеҳ)</b>\n\n"
+        f"🔔 <b>Янги пул чиқариш сўрови! (Тасбеҳ)</b>\n\n"
         f"👤 Фойдаланувчи: @{user.username} (ID: <code>{user.id}</code>)\n"
         f"Исми: {user.first_name}\n"
         f"💳 Реквизит:\n<code>{details}</code>"
@@ -115,22 +112,22 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     action, user_id = parts[1], int(parts[2])
     
     if action == "yes":
-        await bot.send_message(user_id, "✅ Сизнинг вывод сўровингиз администратор томонидан тасдиқланди ва маблағ ўтказиб берилди! 🎉")
+        await bot.send_message(user_id, "✅ Сизнинг пул чиқариш сўровингиз администратор томонидан тасдиқланди ва маблағ ўтказиб берилди! 🎉")
         await callback.message.edit_text(callback.message.text + "\n\n<b>✅ Статус: ТЎЛАНДИ</b>", parse_mode="HTML")
     else:
-        await bot.send_message(user_id, "❌ Афсус, Сизнинг вывод сўровингиз рад этилди ёки маълумотлар нотўғри.")
+        await bot.send_message(user_id, "❌ Афсус, Сизнинг пул чиқариш сўровингиз рад этилди ёки маълумотлар нотўғри.")
         await callback.message.edit_text(callback.message.text + "\n\n<b>❌ Статус: РАД ЭТИЛДИ</b>", parse_mode="HTML")
         
     await callback.answer("Бажарилди!")
 
-# 3. Кнопка "Рефераллар"
-@dp.message(lambda msg: msg.text == "👥 Рефераллар")
+# 3. Кнопка "Дўстларни таклиф қилиш"
+@dp.message(lambda msg: msg.text == "👥 Дўстларни таклиф қилиш")
 async def process_referral(message: types.Message):
     bot_info = await bot.get_me()
     ref_link = f"https://t.me/{bot_info.username}?start={message.from_user.id}"
     
     await message.answer(
-        "👥 <b>Реферал тизими</b>\n\n"
+        "👥 <b>Дўстларни таклиф қилиш</b>\n\n"
         "Дўстларингизни таклиф қилинг, биргаликда зикр қилинг ва умумий рейтингда юқори ўринларни эгалланг! (Бу тизим фақат дўстлар билан мусобақалашиш учун).\n\n"
         f"🔗 Сизнинг таклиф линкингиз:\n<code>{ref_link}</code>",
         parse_mode="HTML"
@@ -155,7 +152,7 @@ async def process_tasks(message: types.Message):
 @dp.message(lambda msg: msg.text == "⭐ Рекламани кўриш")
 async def process_ads_view(message: types.Message):
     builder = InlineKeyboardBuilder()
-    builder.button(text="⭐ Рекламани кўриш ва савобга шерик бўлиш", web_app=types.WebAppInfo(url=WEBAPP_URL))
+    builder.button(text="⭐ Рекламани кўриш ", web_app=types.WebAppInfo(url=WEBAPP_URL))
     
     await message.answer(
         "⭐ <b>Хайрли ишлар ва Реклама</b>\n\n"
