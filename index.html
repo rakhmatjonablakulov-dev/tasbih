@@ -13,7 +13,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         body {
-            background: linear-gradient(135deg, #062e21, #0b4f38, #0f6e4d);
+            /* Более светлый, сияющий ночной небесный градиент с лунным свечением */
+            background: linear-gradient(135deg, #1b4f72, #2980b9, #16a085);
             color: #ffffff;
             height: 100vh;
             display: flex;
@@ -22,12 +23,26 @@
             align-items: center;
             padding: 15px 20px;
             overflow: hidden;
+            position: relative;
+        }
+        /* Эффект звезд и лунного сияния на фоне */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white 1px, transparent 0),
+                radial-gradient(rgba(255,255,255,0.8) 1.5px, transparent 0);
+            background-size: 40px 40px, 70px 70px;
+            background-position: 0 0, 20px 20px;
+            opacity: 0.4;
+            pointer-events: none;
         }
         .header {
             text-align: center;
             width: 100%;
+            z-index: 2;
         }
-        /* Переключатель языков */
         .lang-selector {
             display: flex;
             justify-content: center;
@@ -35,9 +50,9 @@
             margin-bottom: 8px;
         }
         .lang-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(241, 196, 15, 0.3);
-            color: #cbd5e0;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid #f1c40f;
+            color: #ffffff;
             padding: 4px 10px;
             border-radius: 8px;
             font-size: 11px;
@@ -46,18 +61,16 @@
         }
         .lang-btn.active {
             background: #f1c40f;
-            color: #062e21;
+            color: #1b4f72;
             font-weight: bold;
-            border-color: #f1c40f;
         }
         .title {
             font-size: 20px;
             font-weight: 600;
             color: #f1c40f;
             margin-bottom: 8px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
-        /* Вкладки зикров */
         .zikr-selector {
             display: flex;
             gap: 8px;
@@ -65,14 +78,15 @@
             width: 100%;
             padding: 5px 0;
             scrollbar-width: none;
+            z-index: 2;
         }
         .zikr-selector::-webkit-scrollbar {
             display: none;
         }
         .zikr-tab {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(241, 196, 15, 0.3);
-            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(241, 196, 15, 0.4);
+            color: #ffffff;
             padding: 7px 14px;
             border-radius: 20px;
             font-size: 12px;
@@ -82,39 +96,41 @@
         }
         .zikr-tab.active {
             background: linear-gradient(135deg, #f1c40f, #d4ac0d);
-            color: #062e21;
+            color: #1b4f72;
             font-weight: bold;
             border-color: #f1c40f;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
         }
         .counter-container {
             text-align: center;
             margin: auto 0;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 25px 40px;
             border-radius: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(4px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(6px);
             width: 100%;
             max-width: 320px;
+            z-index: 2;
         }
         .counter-arabic {
-            font-size: 22px;
+            font-size: 24px;
             color: #f1c40f;
             margin-bottom: 5px;
             font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .counter-value {
             font-size: 75px;
             font-weight: 700;
-            color: #f1c40f;
-            text-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
+            color: #ffffff;
+            text-shadow: 0 0 25px rgba(241, 196, 15, 0.8);
             line-height: 1;
         }
         .counter-label {
             font-size: 14px;
-            color: #a3e4d7;
+            color: #e2e8f0;
             margin-top: 8px;
             font-weight: 500;
         }
@@ -124,14 +140,15 @@
             align-items: center;
             width: 100%;
             margin-bottom: 15px;
+            z-index: 2;
         }
         .tap-button {
             width: 190px;
             height: 190px;
             border-radius: 50%;
-            background: linear-gradient(145deg, #11825c, #095c40);
+            background: linear-gradient(145deg, #2980b9, #1b4f72);
             border: 3px solid #f1c40f;
-            box-shadow: 0 10px 30px rgba(5, 74, 51, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(41, 128, 185, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.3);
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -147,17 +164,18 @@
         }
         .tap-button:active {
             transform: scale(0.92);
-            background: linear-gradient(145deg, #0d6b4c, #074832);
+            background: linear-gradient(145deg, #1b4f72, #11354c);
         }
         .footer {
             width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 2;
         }
         .reset-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #ffffff;
             padding: 10px 20px;
             border-radius: 12px;
@@ -165,14 +183,13 @@
             cursor: pointer;
         }
         .reset-btn:active {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <!-- Переключатель языка -->
         <div class="lang-selector">
             <button class="lang-btn active" data-lang="uz">O'zbek</button>
             <button class="lang-btn" data-lang="ru">Русский</button>
@@ -181,7 +198,6 @@
         </div>
         <div class="title" id="appTitle">✨ Муборак Тасбеҳ ✨</div>
         
-        <!-- Вкладки зикров -->
         <div class="zikr-selector" id="zikrSelector">
             <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
             <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
@@ -202,7 +218,7 @@
     </div>
 
     <div class="footer">
-        <span id="developerText" style="font-size: 12px; color: #a3e4d7; opacity: 0.8;">Tasbih App</span>
+        <span id="developerText" style="font-size: 12px; color: #f1c40f; opacity: 0.9;">🌙 Tasbih App</span>
         <button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
     </div>
 
@@ -210,7 +226,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // База переводов и зикров на 4 языках
         const i18n = {
             uz: {
                 title: "✨ Муборак Тасбеҳ ✨",
@@ -284,7 +299,6 @@
             tapBtn.textContent = t.tap;
             resetBtn.textContent = t.reset;
 
-            // Обновляем текст вкладок зикров
             tabs.forEach((tab, idx) => {
                 tab.textContent = t.zikrs[idx].name;
             });
@@ -295,7 +309,6 @@
             zikrLabel.textContent = zikr.name;
             arabicText.textContent = zikr.arabic;
 
-            // Активные кнопки языков
             langBtns.forEach(btn => {
                 if (btn.getAttribute('data-lang') === currentLang) {
                     btn.classList.add('active');
@@ -304,7 +317,6 @@
                 }
             });
 
-            // Активные вкладки зикров
             tabs.forEach((tab, idx) => {
                 if (idx === currentZikrIndex) {
                     tab.classList.add('active');
@@ -316,7 +328,6 @@
 
         updateInterface();
 
-        // Смена языка
         langBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 currentLang = btn.getAttribute('data-lang');
@@ -326,7 +337,6 @@
             });
         });
 
-        // Переключение по вкладкам зикров
         tabs.forEach((tab, idx) => {
             tab.addEventListener('click', () => {
                 currentZikrIndex = idx;
@@ -335,7 +345,6 @@
             });
         });
 
-        // Клик по тапалке
         tapBtn.addEventListener('click', () => {
             const zikr = i18n[currentLang].zikrs[currentZikrIndex];
             let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
@@ -349,7 +358,6 @@
             }
         });
 
-        // Сброс
         resetBtn.addEventListener('click', () => {
             const t = i18n[currentLang];
             const zikr = t.zikrs[currentZikrIndex];
