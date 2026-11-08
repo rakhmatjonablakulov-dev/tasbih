@@ -16,7 +16,8 @@ dp = Dispatcher()
 
 # Муваққат базалар
 users = set()                  
-user_balances = {}             
+user_balances = {ADMIN_ID: 1000} # Мисол учун админга балл бериб турамиз
+user_names = {}                # Фойдаланувчи исмларини сақлаш учун
 tasks_list = [                 
     {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50},
     {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30}
@@ -38,15 +39,16 @@ class AdminTask(StatesGroup):
     waiting_reward = State()
 
 
-# 🌟 Энг чиройли ва замонавий асосий меню
+# 🌟 Энг чиройли ва замонавий асосий меню (Рейтинг тугмаси билан бирга)
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📿 Тасбеҳни очиш")
     builder.button(text="💳 Пулни ечиб олиш")
+    builder.button(text="🏆 Рейтинг")
     builder.button(text="👥 Дўстларни таклиф")
     builder.button(text="📋 Вазифалар")
     builder.button(text="⭐ Рекламани кўриш")
-    builder.adjust(2, 2, 1)
+    builder.adjust(2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
 
 # 🛠 Админ панелнинг чиройли менюси
@@ -66,6 +68,8 @@ def get_admin_menu():
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     users.add(user_id)
+    user_names[user_id] = message.from_user.first_name or "Foydalanuvchi"
+    
     if user_id not in user_balances:
         user_balances[user_id] = 0
 
@@ -123,7 +127,7 @@ async def receive_withdrawal_details(message: types.Message, state: FSMContext):
     admin_text = (
         f"🔔 <b>Янги пул чиқариш сўрови!</b>\n\n"
         f"👤 Фойдаланувчи: @{user.username} (ID: <code>{user.id}</code>)\n"
-        f" Исми: {user.first_name}\n"
+        f"Исми: {user.first_name}\n"
         f"💳 Реквизит:\n<code>{details}</code>"
     )
     
@@ -163,6 +167,24 @@ async def admin_payment_decision(callback: types.CallbackQuery):
         await callback.message.edit_text(callback.message.text + "\n\n<b>❌ Статус: РАД ЭТИЛДИ</b>", parse_mode="HTML")
         
     await callback.answer("Бажарилди!")
+
+
+# 🏆 РЕЙТИНГ ТУГМАСИ ВА ФУНКЦИЯСИ
+@dp.message(lambda msg: msg.text == "🏆 Рейтинг")
+async def show_leaderboard(message: types.Message):
+    # Фойдаланувчиларни баллар бўйича камайиш тартибида саралаймиз (Топ-10)
+    sorted_users = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)[:10]
+    
+    text = "🏆 <b>Энг фаол зикр қилувчилар рейтинги (Топ-10)</b>\n\n"
+    
+    medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
+    
+    for index, (uid, balance) in enumerate(sorted_users):
+        name = user_names.get(uid, f"Фойдаланувчи {uid}")
+        medal = medals[index] if index < len(medals) else f"{index+1}."
+        text += f"{medal} <b>{name}</b> — {balance} балл\n"
+        
+    await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
 
 
 # 3. Кнопка "Дўстларни таклиф"
