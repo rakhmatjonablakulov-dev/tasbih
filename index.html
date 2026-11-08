@@ -13,8 +13,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         body {
-            /* Фоновое изображение (ночное небо, луна, Кааба) с затемнением для читаемости текста */
-            background: linear-gradient(rgba(11, 38, 47, 0.4), rgba(5, 20, 25, 0.7)), 
+            /* Фоновое изображение (ночное небо, Кааба вдали) с легким затемнением */
+            background: linear-gradient(rgba(11, 38, 47, 0.3), rgba(5, 20, 25, 0.6)), 
                         url('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             color: #ffffff;
@@ -25,7 +25,48 @@
             align-items: center;
             padding: 15px 20px;
             overflow: hidden;
+            position: relative;
         }
+
+        /* Красивая полная луна и звезды строго в небе */
+        .sky-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%; /* Занимает только верхнюю половину (небо) */
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Полная луна */
+        .moon {
+            position: absolute;
+            top: 25px;
+            left: 35px;
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle at 30% 30%, #fffdf0, #f1c40f);
+            border-radius: 50%;
+            box-shadow: 0 0 25px rgba(241, 196, 15, 0.7), 0 0 50px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Мерцающие звезды на небе */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(white 1.5px, transparent 0),
+                radial-gradient(rgba(241, 196, 15, 0.8) 2px, transparent 0),
+                radial-gradient(rgba(255, 255, 255, 0.6) 1px, transparent 0);
+            background-size: 60px 60px, 90px 90px, 45px 45px;
+            background-position: 10px 15px, 40px 30px, 20px 50px;
+            opacity: 0.8;
+        }
+
         .header {
             text-align: center;
             width: 100%;
@@ -39,7 +80,7 @@
             padding: 0 5px;
         }
         .lang-btn {
-            background: rgba(15, 40, 30, 0.7);
+            background: rgba(15, 40, 30, 0.75);
             border: 1px solid #f1c40f;
             color: #f1c40f;
             padding: 5px 12px;
@@ -172,6 +213,12 @@
     </style>
 </head>
 <body>
+
+    <!-- Небесный слой с полной луной и звездами -->
+    <div class="sky-elements">
+        <div class="stars"></div>
+        <div class="moon"></div>
+    </div>
 
     <div class="header">
         <div class="top-row">
