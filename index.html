@@ -354,7 +354,7 @@
         <button class="tap-button" id="tapBtn">Зикр</button>
     </div>
 
-    <!-- Монетизационная кнопка с защитой от закрытия WebApp -->
+    <!-- Монетизационная кнопка -->
     <div class="ads-button-container">
         <button class="ads-btn" id="adsBtn">
             <span id="adsTitleText">⭐ Хайирли ишлар учун ушбу кнопкани босинг ⭐</span><br>
@@ -380,7 +380,9 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        try {
+            tg.expand();
+        } catch (e) {}
 
         const languages = [
             { 
@@ -516,33 +518,40 @@
         langToggleBtn.addEventListener('click', () => {
             langIndex = (langIndex + 1) % languages.length;
             updateUI();
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         });
 
         ratingBtn.addEventListener('click', () => {
             let total = calculateTotalZikr();
+            let userName = 'Ҳурматли меҳмон';
+            try {
+                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    userName = tg.initDataUnsafe.user.first_name || userName;
+                }
+            } catch (e) {}
+
             let rank = total > 500 ? "🌟 Мусофир (Фаол)" : total > 100 ? "⭐ Зокир" : "🌱 Бошловчи";
             
             ratingModalBody.innerHTML = `
-                👤 Фойдаланувчи: <b>${tg.initDataUnsafe?.user?.first_name || 'Ҳурматли меҳмон'}</b><br><br>
+                👤 Фойдаланувчи: <b>${userName}</b><br><br>
                 📊 Жами зикрларингиз: <b>${total} та</b><br>
                 🏅 Сизнинг даражангиз: <b>${rank}</b><br><br>
                 <i>💡 Эслатма: Онлайн глобал рейтинг тизими кейинги янгиланишда қўшилади!</i>
             `;
             ratingModal.classList.add('active');
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         });
 
         closeModalBtn.addEventListener('click', () => {
             ratingModal.classList.remove('active');
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         });
 
         tabs.forEach((tab, idx) => {
             tab.addEventListener('click', () => {
                 currentZikrIndex = idx;
                 updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
             });
         });
 
@@ -555,12 +564,38 @@
             counterDisplay.textContent = count;
             totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
 
-            if (tg.HapticFeedback) {
+            if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('medium');
             }
         });
 
-        // Безопасный вызов рекламы без сворачивания тапалки
+        // Безопасный запуск рекламы Monetag
         adsBtn.addEventListener('click', () => {
             try {
-                if (typeof show_12215
+                if (typeof show_12215662 === 'function') {
+                    show_12215662();
+                }
+            } catch (e) {
+                console.log(e);
+            }
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            const currentLang = languages[langIndex];
+            const zikrObj = i18nZikrs[currentZikrIndex];
+            
+            if (confirm(`"${zikrObj[currentLang.code]}"?`)) {
+                localStorage.setItem(zikrObj.key, 0);
+                counterDisplay.textContent = 0;
+                totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
+                if (tg && tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
