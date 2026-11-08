@@ -29,7 +29,7 @@
             position: relative;
         }
 
-        /* Небесный слой с полной луной и звездами */
+        /* Небесный слой с луной и звездами */
         .sky-elements {
             position: absolute;
             top: 0;
@@ -209,7 +209,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Кнопка монетизации */
+        /* Кнопка монетизации с новым текстом */
         .ads-button-container {
             width: 100%;
             display: flex;
@@ -223,14 +223,15 @@
             color: #ffffff;
             width: 100%;
             max-width: 340px;
-            padding: 9px 12px;
+            padding: 8px 12px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
             transition: transform 0.1s;
+            line-height: 1.3;
         }
         .ads-btn:active {
             transform: scale(0.96);
@@ -276,7 +277,7 @@
             </div>
         </div>
         
-        <!-- Вкладки зикров (включая новую кнопку «Бошқа зикрлар») -->
+        <!-- Вкладки зикров -->
         <div class="zikr-selector" id="zikrSelector">
             <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
             <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
@@ -298,9 +299,12 @@
         <button class="tap-button" id="tapBtn">Зикр</button>
     </div>
 
-    <!-- Монетизационная кнопка -->
+    <!-- Монетизационная кнопка с обновленным текстом -->
     <div class="ads-button-container">
-        <button class="ads-btn" id="adsBtn">⭐ Хайирли ишлар учун ушбу кнопкани босинг ⭐</button>
+        <button class="ads-btn" id="adsBtn">
+            ⭐ Хайирли ишлар учун ушбу кнопкани босинг ⭐<br>
+            <span style="font-size: 10px; color: #ffeaa7; font-weight: normal;">Илтимос янги очилган сайтни 10-15 секунд кузатинг.</span>
+        </button>
     </div>
 
     <div class="footer">
