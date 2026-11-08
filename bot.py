@@ -42,7 +42,7 @@ class AdminTask(StatesGroup):
 # 🌟 Энг чиройли ва замонавий асосий меню (Рейтинг тугмаси билан бирга)
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
-    builder.button(text="📿 Тасбеҳни очиш")
+    builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")
     builder.button(text="💳 Пулни ечиб олиш")
     builder.button(text="🏆 Рейтинг")
     builder.button(text="👥 Дўстларни таклиф")
