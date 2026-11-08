@@ -209,7 +209,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Кнопка монетизации с новым текстом */
+        /* Кнопка монетизации */
         .ads-button-container {
             width: 100%;
             display: flex;
@@ -258,6 +258,61 @@
         .reset-btn:active {
             transform: scale(0.95);
         }
+
+        /* Модальное окно рейтинга */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #0b3c2e, #062e21);
+            border: 2px solid #f1c40f;
+            width: 90%;
+            max-width: 340px;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .modal-title {
+            font-size: 18px;
+            color: #f1c40f;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .modal-body {
+            font-size: 13px;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-align: left;
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 12px;
+        }
+        .modal-close-btn {
+            background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+            border: none;
+            color: #062e21;
+            padding: 8px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -270,7 +325,7 @@
 
     <div class="header">
         <div class="top-row">
-            <div class="title">✨ Тасбеҳ ✨</div>
+            <div class="title" id="appTitle">✨ Тасбеҳ ✨</div>
             <div class="top-btns">
                 <button class="rating-btn" id="ratingBtn">⭐ Рейтинг</button>
                 <button class="lang-btn" id="langToggleBtn">🌐 O'zbek</button>
@@ -288,159 +343,4 @@
         </div>
     </div>
 
-    <div class="counter-container">
-        <div class="total-counter-badge" id="totalBadge">Жами зикр: 0</div>
-        <div class="counter-value" id="counter">0</div>
-        <div class="counter-arabic" id="arabicText">سُبْحَانَ ٱللَّهِ</div>
-        <div class="counter-label" id="zikrLabel">Субҳаналлоҳ марта ўқилди</div>
-    </div>
-
-    <div class="tap-button-container">
-        <button class="tap-button" id="tapBtn">Зикр</button>
-    </div>
-
-    <!-- Монетизационная кнопка с обновленным текстом -->
-    <div class="ads-button-container">
-        <button class="ads-btn" id="adsBtn">
-            ⭐ Хайирли ишлар учун ушбу кнопкани босинг ⭐<br>
-            <span style="font-size: 10px; color: #ffeaa7; font-weight: normal;">Илтимос янги очилган сайтни 10-15 секунд кузатинг.</span>
-        </button>
-    </div>
-
-    <div class="footer">
-        <span style="font-size: 11px; color: #f1c40f; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">🌙 Kaaba & Moon Edition</span>
-        <button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        const languages = [
-            { code: 'uz', label: "🌐 O'zbek", ratingText: "⭐ Рейтинг", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
-            { code: 'ru', label: "🌐 Русский", ratingText: "⭐ Рейтинг", totalText: "Всего зикров", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" },
-            { code: 'en', label: "🌐 English", ratingText: "⭐ Rating", totalText: "Total Zikr", tap: "Zikr", reset: "Reset 🔄", suffix: "times read" },
-            { code: 'ar', label: "🌐 العربية", ratingText: "⭐ الترتيب", totalText: "مجموع الأذكار", tap: "ذكر", reset: "إعادة تعيين 🔄", suffix: "مرة" }
-        ];
-
-        let langIndex = 0;
-
-        const i18nZikrs = [
-            { uz: "Субҳаналлоҳ", ru: "Субханаллах", en: "Subhanallah", ar: "سُبْحَانَ ٱللَّهِ", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
-            { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", en: "Alhamdulillah", ar: "ٱلْحَمْدُ لِلَّهِ", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
-            { uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", en: "La ilaha illallah", ar: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
-            { uz: "Астағфируллоҳ", ru: "Астагфируллах", en: "Astaghfirullah", ar: "أَسْتَغْفِرُ ٱللَّهَ", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
-            { uz: "Саловат", ru: "Салават", en: "Salawat", ar: "الصلاة على النبي", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" },
-            { uz: "Бошқа зикрлар", ru: "Другие зикры", en: "Other Zikr", ar: "أذكار أخرى", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ", key: "tasbih_other" }
-        ];
-
-        let currentZikrIndex = 0;
-
-        const langToggleBtn = document.getElementById('langToggleBtn');
-        const ratingBtn = document.getElementById('ratingBtn');
-        const counterDisplay = document.getElementById('counter');
-        const totalBadge = document.getElementById('totalBadge');
-        const arabicText = document.getElementById('arabicText');
-        const zikrLabel = document.getElementById('zikrLabel');
-        const tapBtn = document.getElementById('tapBtn');
-        const adsBtn = document.getElementById('adsBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const tabs = document.querySelectorAll('.zikr-tab');
-
-        function calculateTotalZikr() {
-            let total = 0;
-            i18nZikrs.forEach(zikr => {
-                let val = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
-                total += val;
-            });
-            return total;
-        }
-
-        function updateUI() {
-            const currentLang = languages[langIndex];
-            langToggleBtn.textContent = currentLang.label;
-            ratingBtn.textContent = currentLang.ratingText;
-            tapBtn.textContent = currentLang.tap;
-            resetBtn.textContent = currentLang.reset;
-
-            tabs.forEach((tab, idx) => {
-                tab.textContent = i18nZikrs[idx][currentLang.code];
-            });
-
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            
-            counterDisplay.textContent = count;
-            totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
-            arabicText.textContent = zikrObj.arabic;
-            zikrLabel.textContent = `${zikrObj[currentLang.code]} ${currentLang.suffix}`;
-
-            tabs.forEach((tab, idx) => {
-                if (idx === currentZikrIndex) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
-        }
-
-        updateUI();
-
-        langToggleBtn.addEventListener('click', () => {
-            langIndex = (langIndex + 1) % languages.length;
-            updateUI();
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        });
-
-        ratingBtn.addEventListener('click', () => {
-            alert("🏆 Рейтинг ва савоблар тизими тез кунда ишга тушади!");
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        });
-
-        tabs.forEach((tab, idx) => {
-            tab.addEventListener('click', () => {
-                currentZikrIndex = idx;
-                updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            });
-        });
-
-        tapBtn.addEventListener('click', () => {
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            count++;
-            
-            localStorage.setItem(zikrObj.key, count);
-            counterDisplay.textContent = count;
-            totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
-
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-        });
-
-        adsBtn.addEventListener('click', () => {
-            if (typeof show_12215662 === 'function') {
-                show_12215662();
-            }
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('success');
-            }
-        });
-
-        resetBtn.addEventListener('click', () => {
-            const currentLang = languages[langIndex];
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            
-            if (confirm(`"${zikrObj[currentLang.code]}"?`)) {
-                localStorage.setItem(zikrObj.key, 0);
-                counterDisplay.textContent = 0;
-                totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+    <div class="
