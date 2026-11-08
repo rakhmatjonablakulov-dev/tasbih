@@ -95,7 +95,7 @@ async def open_tasbih(message: types.Message):
     builder.button(text="🚀 Мини-иловани ишга тушириш", web_app=types.WebAppInfo(url=WEBAPP_URL))
     
     await message.answer(
-        "📿 <b>Тасбеҳ модули тайёр!</b>\n\n"
+        "📿 <b>Т А С Б Е Х!</b>\n\n"
         "Қуйидаги тугма орқали интерактив мини-иловага ўтинг ва зикр қилишни бошланг:",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
