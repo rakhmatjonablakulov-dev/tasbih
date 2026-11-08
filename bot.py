@@ -88,8 +88,8 @@ async def back_to_main_menu(message: types.Message):
     await message.answer("✨ Асосий менюга қайтдингиз.", reply_markup=get_main_menu())
 
 
-# 1. Кнопка "Тасбеҳни очиш"
-@dp.message(lambda msg: msg.text == "📿 Тасбеҳни очиш")
+# 1. Кнопка "Т А С Б Е Х Н И  О Ч И Ш"
+@dp.message(lambda msg: msg.text == "📿 Т А С Б Е Х Н И  О Ч И Ш")
 async def open_tasbih(message: types.Message):
     builder = InlineKeyboardBuilder()
     builder.button(text="🚀 Мини-иловани ишга тушириш", web_app=types.WebAppInfo(url=WEBAPP_URL))
@@ -107,7 +107,7 @@ async def open_tasbih(message: types.Message):
 async def process_withdrawal(message: types.Message, state: FSMContext):
     await message.answer(
         "💳 <b>Маблағни ечиб олиш маркази</b>\n\n"
-        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки тўлов тизимига ўтказиш учун реквизитларингизни юборинг.\n\n"
+        "Ҳурматли фойдаланувчи! ХОХЛОВЧИЛАР ЗИКР КИЛИБ ТУПЛАГАН БАЛЛАРИНИ НАХТ ПУЛ ШАКЛИДА ОЛИШЛАРИ МУМКИН .  Тўплаган балларни картага ёки тўлов тизимига ўтказиш учун реквизитларингизни юборинг.\n\n"
         "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф)</i>\n\n"
         "❌ Бекор қилиш учун /cancel ни босинг.",
         parse_mode="HTML"
