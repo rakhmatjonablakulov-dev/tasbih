@@ -13,7 +13,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         body {
-            /* Фоновое изображение (ночное небо, Кааба вдали) с легким затемнением */
+            /* Фоновое изображение (ночное небо, мечеть/Кааба) с легким затемнением */
             background: linear-gradient(rgba(11, 38, 47, 0.3), rgba(5, 20, 25, 0.6)), 
                         url('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
@@ -28,21 +28,21 @@
             position: relative;
         }
 
-        /* Красивая полная луна и звезды строго в небе */
+        /* Небесный слой с полной луной и звездами */
         .sky-elements {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 50%; /* Занимает только верхнюю половину (небо) */
+            height: 60%;
             pointer-events: none;
             z-index: 1;
         }
 
-        /* Полная луна */
+        /* Луна аккуратно опущена ниже шапки */
         .moon {
             position: absolute;
-            top: 25px;
+            top: 95px;
             left: 35px;
             width: 55px;
             height: 55px;
@@ -258,97 +258,4 @@
         const languages = [
             { code: 'uz', label: "🌐 O'zbek", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
             { code: 'ru', label: "🌐 Русский", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" },
-            { code: 'en', label: "🌐 English", tap: "Zikr", reset: "Reset 🔄", suffix: "times read" },
-            { code: 'ar', label: "🌐 العربية", tap: "ذكر", reset: "إعادة تعيين 🔄", suffix: "مرة" }
-        ];
-
-        let langIndex = 0;
-
-        const i18nZikrs = [
-            { uz: "Субҳаналлоҳ", ru: "Субханаллах", en: "Subhanallah", ar: "سُبْحَانَ ٱللَّهِ", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
-            { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", en: "Alhamdulillah", ar: "ٱلْحَمْدُ لِلَّهِ", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
-            { uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", en: "La ilaha illallah", ar: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
-            { uz: "Астағфируллоҳ", ru: "Астагфируллах", en: "Astaghfirullah", ar: "أَسْتَغْفِرُ ٱللَّهَ", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
-            { uz: "Саловат", ru: "Салават", en: "Salawat", ar: "الصلاة على النبي", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
-        ];
-
-        let currentZikrIndex = 0;
-
-        const langToggleBtn = document.getElementById('langToggleBtn');
-        const counterDisplay = document.getElementById('counter');
-        const arabicText = document.getElementById('arabicText');
-        const zikrLabel = document.getElementById('zikrLabel');
-        const tapBtn = document.getElementById('tapBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const tabs = document.querySelectorAll('.zikr-tab');
-
-        function updateUI() {
-            const currentLang = languages[langIndex];
-            langToggleBtn.textContent = currentLang.label;
-            tapBtn.textContent = currentLang.tap;
-            resetBtn.textContent = currentLang.reset;
-
-            tabs.forEach((tab, idx) => {
-                tab.textContent = i18nZikrs[idx][currentLang.code];
-            });
-
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            
-            counterDisplay.textContent = count;
-            arabicText.textContent = zikrObj.arabic;
-            zikrLabel.textContent = `${zikrObj[currentLang.code]} ${currentLang.suffix}`;
-
-            tabs.forEach((tab, idx) => {
-                if (idx === currentZikrIndex) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
-        }
-
-        updateUI();
-
-        langToggleBtn.addEventListener('click', () => {
-            langIndex = (langIndex + 1) % languages.length;
-            updateUI();
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        });
-
-        tabs.forEach((tab, idx) => {
-            tab.addEventListener('click', () => {
-                currentZikrIndex = idx;
-                updateUI();
-                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            });
-        });
-
-        tapBtn.addEventListener('click', () => {
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            count++;
-            
-            localStorage.setItem(zikrObj.key, count);
-            counterDisplay.textContent = count;
-
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-        });
-
-        resetBtn.addEventListener('click', () => {
-            const currentLang = languages[langIndex];
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            
-            if (confirm(`"${zikrObj[currentLang.code]}"?`)) {
-                localStorage.setItem(zikrObj.key, 0);
-                counterDisplay.textContent = 0;
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+            { code: 'en', label: "🌐 English", tap
