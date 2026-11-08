@@ -276,13 +276,14 @@
             </div>
         </div>
         
-        <!-- Вкладки зикров -->
+        <!-- Вкладки зикров (включая новую кнопку «Бошқа зикрлар») -->
         <div class="zikr-selector" id="zikrSelector">
             <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
             <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
             <div class="zikr-tab" data-index="2">Ла илаҳа иллаллоҳ</div>
             <div class="zikr-tab" data-index="3">Астағфируллоҳ</div>
             <div class="zikr-tab" data-index="4">Саловат</div>
+            <div class="zikr-tab" data-index="5">Бошқа зикрлар</div>
         </div>
     </div>
 
@@ -325,7 +326,8 @@
             { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", en: "Alhamdulillah", ar: "ٱلْحَمْدُ لِلَّهِ", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
             { uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", en: "La ilaha illallah", ar: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
             { uz: "Астағфируллоҳ", ru: "Астагфируллах", en: "Astaghfirullah", ar: "أَسْتَغْفِرُ ٱللَّهَ", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
-            { uz: "Саловат", ru: "Салават", en: "Salawat", ar: "الصلاة على النبي", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
+            { uz: "Саловат", ru: "Салават", en: "Salawat", ar: "الصلاة على النبي", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" },
+            { uz: "Бошқа зикрлар", ru: "Другие зикры", en: "Other Zikr", ar: "أذكار أخرى", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ", key: "tasbih_other" }
         ];
 
         let currentZikrIndex = 0;
@@ -341,7 +343,6 @@
         const resetBtn = document.getElementById('resetBtn');
         const tabs = document.querySelectorAll('.zikr-tab');
 
-        // Функция расчета общего количества всех зикров
         function calculateTotalZikr() {
             let total = 0;
             i18nZikrs.forEach(zikr => {
