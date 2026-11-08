@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Мукаммал Тасбеҳ</title>
+    <title>Муборак Тасбеҳ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -13,100 +13,141 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
         body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: linear-gradient(135deg, #062e21, #0b4f38, #0f6e4d);
             color: #ffffff;
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 15px 20px;
             overflow: hidden;
         }
         .header {
             text-align: center;
             width: 100%;
         }
+        /* Переключатель языков */
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            color: #cbd5e0;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lang-btn.active {
+            background: #f1c40f;
+            color: #062e21;
+            font-weight: bold;
+            border-color: #f1c40f;
+        }
         .title {
             font-size: 20px;
             font-weight: 600;
-            color: #00d2ff;
-            margin-bottom: 10px;
+            color: #f1c40f;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        /* Стили для выбора зикра (горизонтальный скролл) */
+        /* Вкладки зикров */
         .zikr-selector {
             display: flex;
             gap: 8px;
             overflow-x: auto;
             width: 100%;
             padding: 5px 0;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
         .zikr-selector::-webkit-scrollbar {
-            display: none; /* Chrome, Safari */
+            display: none;
         }
         .zikr-tab {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #a0aec0;
-            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(241, 196, 15, 0.3);
+            color: #e2e8f0;
+            padding: 7px 14px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 12px;
             white-space: nowrap;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
         .zikr-tab.active {
-            background: #00d2ff;
-            color: #0f2027;
+            background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+            color: #062e21;
             font-weight: bold;
-            border-color: #00d2ff;
-            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+            border-color: #f1c40f;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
         }
         .counter-container {
             text-align: center;
             margin: auto 0;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px 40px;
+            border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+            width: 100%;
+            max-width: 320px;
+        }
+        .counter-arabic {
+            font-size: 22px;
+            color: #f1c40f;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         .counter-value {
             font-size: 75px;
             font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            color: #f1c40f;
+            text-shadow: 0 0 25px rgba(241, 196, 15, 0.4);
+            line-height: 1;
         }
         .counter-label {
-            font-size: 15px;
-            color: #cbd5e0;
-            margin-top: 5px;
+            font-size: 14px;
+            color: #a3e4d7;
+            margin-top: 8px;
+            font-weight: 500;
         }
         .tap-button-container {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .tap-button {
-            width: 200px;
-            height: 200px;
+            width: 190px;
+            height: 190px;
             border-radius: 50%;
-            background: linear-gradient(145deg, #00b4db, #0083b0);
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 131, 176, 0.5), inset 0 4px 6px rgba(255, 255, 255, 0.3);
+            background: linear-gradient(145deg, #11825c, #095c40);
+            border: 3px solid #f1c40f;
+            box-shadow: 0 10px 30px rgba(5, 74, 51, 0.6), inset 0 4px 10px rgba(255, 255, 255, 0.2);
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: #f1c40f;
             font-size: 26px;
             font-weight: bold;
             transition: transform 0.1s ease, box-shadow 0.1s ease;
             outline: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
         .tap-button:active {
-            transform: scale(0.93);
-            box-shadow: 0 5px 15px rgba(0, 131, 176, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: scale(0.92);
+            background: linear-gradient(145deg, #0d6b4c, #074832);
         }
         .footer {
             width: 100%;
@@ -115,7 +156,7 @@
             align-items: center;
         }
         .reset-btn {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: #ffffff;
             padding: 10px 20px;
@@ -131,8 +172,16 @@
 <body>
 
     <div class="header">
-        <div class="title">📿 Мукаммал Тасбеҳ</div>
-        <!-- Список кнопок переключения зикров -->
+        <!-- Переключатель языка -->
+        <div class="lang-selector">
+            <button class="lang-btn active" data-lang="uz">O'zbek</button>
+            <button class="lang-btn" data-lang="ru">Русский</button>
+            <button class="lang-btn" data-lang="en">English</button>
+            <button class="lang-btn" data-lang="ar">العربية</button>
+        </div>
+        <div class="title" id="appTitle">✨ Муборак Тасбеҳ ✨</div>
+        
+        <!-- Вкладки зикров -->
         <div class="zikr-selector" id="zikrSelector">
             <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
             <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
@@ -143,6 +192,7 @@
     </div>
 
     <div class="counter-container">
+        <div class="counter-arabic" id="arabicText">سُبْحَانَ ٱللَّهِ</div>
         <div class="counter-value" id="counter">0</div>
         <div class="counter-label" id="zikrLabel">Субҳаналлоҳ</div>
     </div>
@@ -152,6 +202,7 @@
     </div>
 
     <div class="footer">
+        <span id="developerText" style="font-size: 12px; color: #a3e4d7; opacity: 0.8;">Tasbih App</span>
         <button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
     </div>
 
@@ -159,31 +210,101 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Массив зикров
-        const zikrs = [
-            { name: "Субҳаналлоҳ", key: "tasbih_subhanallah" },
-            { name: "Алҳамдулиллаҳ", key: "tasbih_alhamdulillah" },
-            { name: "Ла илаҳа иллаллоҳ", key: "tasbih_lailaha" },
-            { name: "Астағфируллоҳ", key: "tasbih_astagfirullah" },
-            { name: "Саловат", key: "tasbih_salovat" }
-        ];
+        // База переводов и зикров на 4 языках
+        const i18n = {
+            uz: {
+                title: "✨ Муборак Тасбеҳ ✨",
+                tap: "Зикр",
+                reset: "Ноллаш 🔄",
+                confirmReset: "ҳисобини ноллашни хоҳлайсизми?",
+                zikrs: [
+                    { name: "Субҳаналлоҳ", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
+                    { name: "Алҳамдулиллаҳ", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
+                    { name: "Ла илаҳа иллаллоҳ", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
+                    { name: "Астағфируллоҳ", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
+                    { name: "Саловат", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
+                ]
+            },
+            ru: {
+                title: "✨ Благословенный Тасбих ✨",
+                tap: "Зикр",
+                reset: "Сброс 🔄",
+                confirmReset: "сбросить счетчик для",
+                zikrs: [
+                    { name: "Субханаллах", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
+                    { name: "Альхамдулиллах", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
+                    { name: "Ла илаха илляллах", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
+                    { name: "Астагфируллах", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
+                    { name: "Салават", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
+                ]
+            },
+            en: {
+                title: "✨ Blessed Tasbih ✨",
+                tap: "Zikr",
+                reset: "Reset 🔄",
+                confirmReset: "reset counter for",
+                zikrs: [
+                    { name: "Subhanallah", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
+                    { name: "Alhamdulillah", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
+                    { name: "La ilaha illallah", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
+                    { name: "Astaghfirullah", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
+                    { name: "Salawat", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
+                ]
+            },
+            ar: {
+                title: "✨ التسبيح المبارك ✨",
+                tap: "ذكر",
+                reset: "إعادة تعيين 🔄",
+                confirmReset: "هل تريد تصفير عداد",
+                zikrs: [
+                    { name: "سُبْحَانَ ٱللَّهِ", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
+                    { name: "ٱلْحَمْدُ لِلَّهِ", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
+                    { name: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
+                    { name: "أَسْتَغْفِرُ ٱللَّهَ", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
+                    { name: "الصلاة على النبي", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" }
+                ]
+            }
+        };
 
+        let currentLang = localStorage.getItem('tasbih_lang') || 'uz';
         let currentZikrIndex = 0;
 
+        const appTitle = document.getElementById('appTitle');
         const counterDisplay = document.getElementById('counter');
-        const zikrLabel = document.getElementById('zikrLabel'); // ИСПРАВЛЕНО ЗДЕСЬ
+        const arabicText = document.getElementById('arabicText');
+        const zikrLabel = document.getElementById('zikrLabel');
         const tapBtn = document.getElementById('tapBtn');
         const resetBtn = document.getElementById('resetBtn');
         const tabs = document.querySelectorAll('.zikr-tab');
+        const langBtns = document.querySelectorAll('.lang-btn');
 
-        // Функция загрузки текущего зикра
-        function loadCurrentZikr() {
-            const zikr = zikrs[currentZikrIndex];
+        function updateInterface() {
+            const t = i18n[currentLang];
+            appTitle.textContent = t.title;
+            tapBtn.textContent = t.tap;
+            resetBtn.textContent = t.reset;
+
+            // Обновляем текст вкладок зикров
+            tabs.forEach((tab, idx) => {
+                tab.textContent = t.zikrs[idx].name;
+            });
+
+            const zikr = t.zikrs[currentZikrIndex];
             let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
             counterDisplay.textContent = count;
             zikrLabel.textContent = zikr.name;
+            arabicText.textContent = zikr.arabic;
 
-            // Обновляем активную вкладку
+            // Активные кнопки языков
+            langBtns.forEach(btn => {
+                if (btn.getAttribute('data-lang') === currentLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Активные вкладки зикров
             tabs.forEach((tab, idx) => {
                 if (idx === currentZikrIndex) {
                     tab.classList.add('active');
@@ -193,22 +314,30 @@
             });
         }
 
-        loadCurrentZikr();
+        updateInterface();
 
-        // Переключение по вкладкам
-        tabs.forEach((tab) => {
-            tab.addEventListener('click', () => {
-                currentZikrIndex = parseInt(tab.getAttribute('data-index'));
-                loadCurrentZikr();
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.selectionChanged();
-                }
+        // Смена языка
+        langBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentLang = btn.getAttribute('data-lang');
+                localStorage.setItem('tasbih_lang', currentLang);
+                updateInterface();
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
             });
         });
 
-        // Клик по главной кнопке тапалки
+        // Переключение по вкладкам зикров
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('click', () => {
+                currentZikrIndex = idx;
+                updateInterface();
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            });
+        });
+
+        // Клик по тапалке
         tapBtn.addEventListener('click', () => {
-            const zikr = zikrs[currentZikrIndex];
+            const zikr = i18n[currentLang].zikrs[currentZikrIndex];
             let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
             count++;
             
@@ -220,10 +349,13 @@
             }
         });
 
-        // Сброс счетчика текущего зикра
+        // Сброс
         resetBtn.addEventListener('click', () => {
-            const zikr = zikrs[currentZikrIndex];
-            if (confirm(`"${zikr.name}" ҳисобини ноллашни хоҳлайсизми?`)) {
+            const t = i18n[currentLang];
+            const zikr = t.zikrs[currentZikrIndex];
+            let confirmText = currentLang === 'ar' ? `هل تريد تصفير ${zikr.name}؟` : `"${zikr.name}" ${t.confirmReset}?`;
+            
+            if (confirm(confirmText)) {
                 localStorage.setItem(zikr.key, 0);
                 counterDisplay.textContent = 0;
                 if (tg.HapticFeedback) {
