@@ -1,697 +1,679 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Муборак Тасбеҳ ва Намоз вақтлари</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src='//libtl.com/sdk.js' data-zone='12215662' data-sdk='show_12215662'></script>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            background: linear-gradient(rgba(11, 38, 47, 0.35), rgba(5, 20, 25, 0.7)), 
-                        url('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 15px;
-            overflow-x: hidden;
-            position: relative;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Муборак Тасбеҳ ва Намоз вақтлари</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src='//libtl.com/sdk.js' data-zone='12215662' data-sdk='show_12215662'></script>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+body {
+background: linear-gradient(rgba(11, 38, 47, 0.35), rgba(5, 20, 25, 0.7)), 
+url('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
+background-size: cover;
+color: #ffffff;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: center;
+padding: 10px 15px;
+overflow-x: hidden;
+position: relative;
+}
+/* Небесный слой с луной и звездами */
+.sky-elements {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 60%;
+pointer-events: none;
+z-index: 1;
+}
+/* Ўроқ шаклидаги ярим ой - Ўнг томонга кўчирилди ва сояси мосланди */
+.moon {
+position: absolute;
+top: 70px;
+right: 20px;
+width: 38px;
+height: 38px;
+background: transparent;
+border-radius: 50%;
+box-shadow: 7px 2px 0 0 #f1c40f;
+filter: drop-shadow(0 0 8px rgba(241, 196, 15, 0.8));
+}
+.stars {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image: 
+radial-gradient(white 1.5px, transparent 0),
+radial-gradient(rgba(241, 196, 15, 0.8) 2px, transparent 0);
+background-size: 60px 60px, 90px 90px;
+opacity: 0.8;
+}
+.header {
+text-align: center;
+width: 100%;
+z-index: 2;
+}
+.top-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+padding: 0 5px;
+}
+.top-btns {
+display: flex;
+gap: 5px;
+}
+.action-btn {
+background: rgba(15, 40, 30, 0.8);
+border: 1px solid #f1c40f;
+color: #f1c40f;
+padding: 4px 8px;
+border-radius: 8px;
+font-size: 10px;
+font-weight: bold;
+cursor: pointer;
+backdrop-filter: blur(5px);
+}
+.title {
+font-size: 15px;
+font-weight: 600;
+color: #f1c40f;
+text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+/* Вкладки зикров */
+.zikr-selector {
+display: flex;
+gap: 6px;
+overflow-x: auto;
+width: 100%;
+padding: 2px 0;
+scrollbar-width: none;
+z-index: 2;
+margin-top: 5px;
+}
+.zikr-selector::-webkit-scrollbar {
+display: none;
+}
+.zikr-tab {
+background: rgba(10, 30, 25, 0.75);
+border: 1px solid rgba(241, 196, 15, 0.5);
+color: #e2e8f0;
+padding: 4px 10px;
+border-radius: 12px;
+font-size: 11px;
+white-space: nowrap;
+cursor: pointer;
+backdrop-filter: blur(4px);
+transition: all 0.3s ease;
+}
+.zikr-tab.active {
+background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+color: #0b3c2e;
+font-weight: bold;
+border-color: #f1c40f;
+box-shadow: 0 0 12px rgba(241, 196, 15, 0.7);
+}
 
-        /* Небесный слой с луной и звездами */
-        .sky-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60%;
-            pointer-events: none;
-            z-index: 1;
-        }
+/* Соат ва намоз вақти панели «Субҳаналлоҳ» тугмасининг пастига туширилди */
+.widget-panel {
+background: rgba(8, 28, 22, 0.75);
+border: 1px solid rgba(241, 196, 15, 0.4);
+border-radius: 12px;
+padding: 6px 10px;
+margin-top: 8px;
+margin-bottom: 6px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+backdrop-filter: blur(6px);
+z-index: 2;
+width: 100%;
+}
+.live-clock {
+font-size: 16px;
+font-weight: bold;
+color: #f1c40f;
+text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+.next-prayer-info {
+font-size: 11px;
+color: #a3e4d7;
+text-align: right;
+}
+.next-prayer-info span {
+color: #f1c40f;
+font-weight: bold;
+}
 
-        /* Ўроқ шаклидаги ярим ой */
-        .moon {
-            position: absolute;
-            top: 70px;
-            left: 20px;
-            width: 38px;
-            height: 38px;
-            background: transparent;
-            border-radius: 50%;
-            /* Чап томонидан соя бериб, ярим ой (ўроқ) шаклини ҳосил қиламиз */
-            box-shadow: -7px 2px 0 0 #f1c40f;
-            filter: drop-shadow(0 0 8px rgba(241, 196, 15, 0.8));
-        }
-
-        .stars {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(white 1.5px, transparent 0),
-                radial-gradient(rgba(241, 196, 15, 0.8) 2px, transparent 0);
-            background-size: 60px 60px, 90px 90px;
-            opacity: 0.8;
-        }
-
-        .header {
-            text-align: center;
-            width: 100%;
-            z-index: 2;
-        }
-        .top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 0 5px;
-        }
-        .top-btns {
-            display: flex;
-            gap: 5px;
-        }
-        .action-btn {
-            background: rgba(15, 40, 30, 0.8);
-            border: 1px solid #f1c40f;
-            color: #f1c40f;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-        }
-        .title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #f1c40f;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-        }
-
-        /* Соат ва намоз вақти панели озроқ пастга силжитиб юборилди (margin-top қўшилди) */
-        .widget-panel {
-            background: rgba(8, 28, 22, 0.75);
-            border: 1px solid rgba(241, 196, 15, 0.4);
-            border-radius: 12px;
-            padding: 6px 10px;
-            margin-top: 14px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(6px);
-            z-index: 2;
-            width: 100%;
-        }
-        .live-clock {
-            font-size: 16px;
-            font-weight: bold;
-            color: #f1c40f;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-        }
-        .next-prayer-info {
-            font-size: 11px;
-            color: #a3e4d7;
-            text-align: right;
-        }
-        .next-prayer-info span {
-            color: #f1c40f;
-            font-weight: bold;
-        }
-
-        /* Вкладки зикров */
-        .zikr-selector {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            width: 100%;
-            padding: 2px 0;
-            scrollbar-width: none;
-            z-index: 2;
-        }
-        .zikr-selector::-webkit-scrollbar {
-            display: none;
-        }
-        .zikr-tab {
-            background: rgba(10, 30, 25, 0.75);
-            border: 1px solid rgba(241, 196, 15, 0.5);
-            color: #e2e8f0;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            white-space: nowrap;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            transition: all 0.3s ease;
-        }
-        .zikr-tab.active {
-            background: linear-gradient(135deg, #f1c40f, #d4ac0d);
-            color: #0b3c2e;
-            font-weight: bold;
-            border-color: #f1c40f;
-            box-shadow: 0 0 12px rgba(241, 196, 15, 0.7);
-        }
-
-        /* Центральный блок счетчика */
-        .counter-container {
-            text-align: center;
-            margin: auto 0;
-            z-index: 2;
-        }
-        .total-counter-badge {
-            font-size: 12px;
-            color: #f1c40f;
-            background: rgba(11, 38, 47, 0.7);
-            border: 1px solid rgba(241, 196, 15, 0.4);
-            padding: 3px 12px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 4px;
-            backdrop-filter: blur(4px);
-            font-weight: 500;
-        }
-        .counter-value {
-            font-size: 65px;
-            font-weight: 700;
-            color: #f1c40f;
-            text-shadow: 0 0 20px rgba(241, 196, 15, 0.9), 0 2px 5px rgba(0,0,0,0.8);
-            line-height: 1;
-        }
-        .counter-arabic {
-            font-size: 20px;
-            color: #f1c40f;
-            margin-top: 3px;
-            font-weight: bold;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-        }
-        .counter-label {
-            font-size: 12px;
-            color: #a3e4d7;
-            margin-top: 3px;
-            font-weight: 500;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-        }
-
-        /* Большая круглая кнопка тасбеха */
-        .tap-button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 4px;
-            z-index: 2;
-        }
-        .tap-button {
-            width: 145px;
-            height: 145px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #134e38 0%, #072e20 100%);
-            border: 3px solid #f1c40f;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7), inset 0 4px 10px rgba(255, 255, 255, 0.25);
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #f1c40f;
-            font-size: 24px;
-            font-weight: bold;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            outline: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.7);
-        }
-        .tap-button:active {
-            transform: scale(0.92);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Кнопка монетизации */
-        .ads-button-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin-bottom: 6px;
-            z-index: 2;
-        }
-        .ads-btn {
-            background: linear-gradient(135deg, #f39c12, #d35400);
-            border: 1px solid #f1c40f;
-            color: #ffffff;
-            width: 100%;
-            max-width: 340px;
-            padding: 6px 10px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
-            line-height: 1.3;
-        }
-
-        .footer {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 2;
-        }
-        .reset-btn {
-            background: linear-gradient(135deg, #f1c40f, #d4ac0d);
-            border: 1px solid #fff;
-            color: #0b3c2e;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(241, 196, 15, 0.5);
-        }
-
-        /* Модальные окна */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .modal-content {
-            background: linear-gradient(135deg, #0b3c2e, #062e21);
-            border: 2px solid #f1c40f;
-            width: 90%;
-            max-width: 340px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 16px;
-            border-radius: 18px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .modal-title {
-            font-size: 16px;
-            color: #f1c40f;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .modal-body {
-            font-size: 12px;
-            color: #e2e8f0;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            text-align: left;
-            background: rgba(0,0,0,0.25);
-            padding: 10px;
-            border-radius: 10px;
-        }
-        .rating-row, .prayer-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .rating-row:last-child, .prayer-row:last-child {
-            border-bottom: none;
-        }
-        .modal-close-btn {
-            background: linear-gradient(135deg, #f1c40f, #d4ac0d);
-            border: none;
-            color: #062e21;
-            padding: 7px 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .select-city {
-            width: 100%;
-            padding: 6px;
-            background: #072e20;
-            border: 1px solid #f1c40f;
-            color: #fff;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 12px;
-        }
-    </style>
+/* Центральный блок счетчика */
+.counter-container {
+text-align: center;
+margin: auto 0;
+z-index: 2;
+}
+.total-counter-badge {
+font-size: 12px;
+color: #f1c40f;
+background: rgba(11, 38, 47, 0.7);
+border: 1px solid rgba(241, 196, 15, 0.4);
+padding: 3px 12px;
+border-radius: 20px;
+display: inline-block;
+margin-bottom: 4px;
+backdrop-filter: blur(4px);
+font-weight: 500;
+}
+.counter-value {
+font-size: 65px;
+font-weight: 700;
+color: #f1c40f;
+text-shadow: 0 0 20px rgba(241, 196, 15, 0.9), 0 2px 5px rgba(0,0,0,0.8);
+line-height: 1;
+}
+.counter-arabic {
+font-size: 20px;
+color: #f1c40f;
+margin-top: 3px;
+font-weight: bold;
+text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+}
+.counter-label {
+font-size: 12px;
+color: #a3e4d7;
+margin-top: 3px;
+font-weight: 500;
+text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+/* Большая круглая кнопка тасбеха */
+.tap-button-container {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+margin-bottom: 4px;
+z-index: 2;
+}
+.tap-button {
+width: 145px;
+height: 145px;
+border-radius: 50%;
+background: radial-gradient(circle, #134e38 0%, #072e20 100%);
+border: 3px solid #f1c40f;
+box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7), inset 0 4px 10px rgba(255, 255, 255, 0.25);
+cursor: pointer;
+display: flex;
+justify-content: center;
+align-items: center;
+color: #f1c40f;
+font-size: 24px;
+font-weight: bold;
+transition: transform 0.1s ease, box-shadow 0.1s ease;
+outline: none;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
+text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+}
+.tap-button:active {
+transform: scale(0.92);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+/* Кнопка монетизации */
+.ads-button-container {
+width: 100%;
+display: flex;
+justify-content: center;
+margin-bottom: 6px;
+z-index: 2;
+}
+.ads-btn {
+background: linear-gradient(135deg, #f39c12, #d35400);
+border: 1px solid #f1c40f;
+color: #ffffff;
+width: 100%;
+max-width: 340px;
+padding: 6px 10px;
+border-radius: 10px;
+font-size: 10px;
+font-weight: bold;
+text-align: center;
+cursor: pointer;
+box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+line-height: 1.3;
+}
+.footer {
+width: 100%;
+display: flex;
+justify-content: space-between;
+align-items: center;
+z-index: 2;
+}
+.reset-btn {
+background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+border: 1px solid #fff;
+color: #0b3c2e;
+padding: 6px 14px;
+border-radius: 8px;
+font-size: 11px;
+font-weight: bold;
+cursor: pointer;
+box-shadow: 0 4px 12px rgba(241, 196, 15, 0.5);
+}
+/* Модальные окна */
+.modal-overlay {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.75);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 100;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.3s ease;
+backdrop-filter: blur(5px);
+}
+.modal-overlay.active {
+opacity: 1;
+pointer-events: auto;
+}
+.modal-content {
+background: linear-gradient(135deg, #0b3c2e, #062e21);
+border: 2px solid #f1c40f;
+width: 90%;
+max-width: 340px;
+max-height: 85vh;
+overflow-y: auto;
+padding: 16px;
+border-radius: 18px;
+text-align: center;
+box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.modal-title {
+font-size: 16px;
+color: #f1c40f;
+margin-bottom: 10px;
+font-weight: bold;
+}
+.modal-body {
+font-size: 12px;
+color: #e2e8f0;
+margin-bottom: 15px;
+line-height: 1.4;
+text-align: left;
+background: rgba(0,0,0,0.25);
+padding: 10px;
+border-radius: 10px;
+}
+.rating-row, .prayer-row {
+display: flex;
+justify-content: space-between;
+padding: 5px 0;
+border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.rating-row:last-child, .prayer-row:last-child {
+border-bottom: none;
+}
+.modal-close-btn {
+background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+border: none;
+color: #062e21;
+padding: 7px 18px;
+border-radius: 8px;
+font-weight: bold;
+cursor: pointer;
+font-size: 12px;
+}
+.select-city {
+width: 100%;
+padding: 6px;
+background: #072e20;
+border: 1px solid #f1c40f;
+color: #fff;
+border-radius: 8px;
+margin-bottom: 10px;
+font-size: 12px;
+}
+</style>
 </head>
 <body>
+<div class="sky-elements">
+<div class="stars"></div>
+<div class="moon"></div>
+</div>
+<div class="header">
+<div class="top-row">
+<div class="title" id="appTitle">✨ Тасбеҳ & Намоз ✨</div>
+<div class="top-btns">
+<button class="action-btn" id="prayerBtn">🕌 Намоз</button>
+<button class="action-btn" id="ratingBtn">📊 Статистика</button>
+<button class="action-btn" id="langToggleBtn">🌐 UZ</button>
+</div>
+</div>
 
-    <div class="sky-elements">
-        <div class="stars"></div>
-        <div class="moon"></div>
-    </div>
+<!-- Вкладки зикров (Субҳаналлоҳ ва бошқа тугмалар) -->
+<div class="zikr-selector" id="zikrSelector">
+<div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
+<div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
+<div class="zikr-tab" data-index="2">Ла илаҳа иллаллоҳ</div>
+<div class="zikr-tab" data-index="3">Астағфируллоҳ</div>
+<div class="zikr-tab" data-index="4">Саловат</div>
+<div class="zikr-tab" data-index="5">Бошқа зикрлар</div>
+</div>
 
-    <div class="header">
-        <div class="top-row">
-            <div class="title" id="appTitle">✨ Тасбеҳ & Намоз ✨</div>
-            <div class="top-btns">
-                <button class="action-btn" id="prayerBtn">🕌 Намоз</button>
-                <button class="action-btn" id="ratingBtn">📊 Статистика</button>
-                <button class="action-btn" id="langToggleBtn">🌐 UZ</button>
-            </div>
-        </div>
-        
-        <!-- Панель часов сдвинута ниже, чтобы луна оставалась видимой -->
-        <div class="widget-panel">
-            <div class="live-clock" id="liveClock">00:00:00</div>
-            <div class="next-prayer-info" id="nextPrayerInfo">
-                Кейинги: <span id="nextPrayerName">--</span><br>
-                Қолди: <span id="nextPrayerCountdown">--:--</span>
-            </div>
-        </div>
-        
-        <!-- Вкладки зикров -->
-        <div class="zikr-selector" id="zikrSelector">
-            <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
-            <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
-            <div class="zikr-tab" data-index="2">Ла илаҳа иллаллоҳ</div>
-            <div class="zikr-tab" data-index="3">Астағфируллоҳ</div>
-            <div class="zikr-tab" data-index="4">Саловат</div>
-            <div class="zikr-tab" data-index="5">Бошқа зикрлар</div>
-        </div>
-    </div>
+<!-- Соат ва намоз вақти панели «Субҳаналлоҳ» тугмалари пастига туширилди -->
+<div class="widget-panel">
+<div class="live-clock" id="liveClock">00:00:00</div>
+<div class="next-prayer-info" id="nextPrayerInfo">
+Кейинги: <span id="nextPrayerName">--</span><br>
+Қолди: <span id="nextPrayerCountdown">--:--</span>
+</div>
+</div>
+</div>
 
-    <div class="counter-container">
-        <div class="total-counter-badge" id="totalBadge">Жами зикр: 0</div>
-        <div class="counter-value" id="counter">0</div>
-        <div class="counter-arabic" id="arabicText">سُبْحَانَ ٱللَّهِ</div>
-        <div class="counter-label" id="zikrLabel">Субҳаналлоҳ марта ўқилди</div>
-    </div>
+<div class="counter-container">
+<div class="total-counter-badge" id="totalBadge">Жами зикр: 0</div>
+<div class="counter-value" id="counter">0</div>
+<div class="counter-arabic" id="arabicText">سُبْحَانَ ٱللَّهِ</div>
+<div class="counter-label" id="zikrLabel">Субҳаналлоҳ марта ўқилди</div>
+</div>
 
-    <div class="tap-button-container">
-        <button class="tap-button" id="tapBtn">Зикр</button>
-    </div>
+<div class="tap-button-container">
+<button class="tap-button" id="tapBtn">Зикр</button>
+</div>
 
-    <!-- Монетизационная кнопка -->
-    <div class="ads-button-container">
-        <button class="ads-btn" id="adsBtn">
-            <span id="adsTitleText">⭐ Лоихани ривожлантириш учун босинг ⭐</span><br>
-            <span id="adsSubText" style="font-size: 9px; color: #ffeaa7; font-weight: normal;">Илтимос очилган сайтни 10 секунд кузатинг.</span>
-        </button>
-    </div>
+<!-- Монетизационная кнопка -->
+<div class="ads-button-container">
+<button class="ads-btn" id="adsBtn">
+<span id="adsTitleText">⭐ Лоихани ривожлантириш учун босинг ⭐</span><br>
+<span id="adsSubText" style="font-size: 9px; color: #ffeaa7; font-weight: normal;">Илтимос очилган сайтни 10 секунд кузатинг.</span>
+</button>
+</div>
 
-    <div class="footer">
-        <span style="font-size: 10px; color: #f1c40f; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">🌙 Namoz & Zikr Edition</span>
-        <button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
-    </div>
+<div class="footer">
+<span style="font-size: 10px; color: #f1c40f; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">🌙 Namoz & Zikr Edition</span>
+<button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
+</div>
 
-    <!-- Модальное окно Намоз вақтлари -->
-    <div class="modal-overlay" id="prayerModal">
-        <div class="modal-content">
-            <div class="modal-title">🕌 Намоз вақтлари ва Азон</div>
-            <select class="select-city" id="citySelect">
-                <option value="Tashkent">Тошкент</option>
-                <option value="Samarkand">Самарқанд</option>
-                <option value="Bukhara">Бухоро</option>
-                <option value="Namangan">Наманган</option>
-                <option value="Andijan">Андижон</option>
-                <option value="Fergana">Фарғона</option>
-                <option value="Khiva">Хоразм / Хива</option>
-            </select>
-            <div class="modal-body" id="prayerTimesList">Юкланмоқда...</div>
-            <div style="font-size: 10px; color: #a3e4d7; margin-bottom: 10px;">
-                🔊 Вақти келганда Азон овози автоматик янграйди.
-            </div>
-            <button class="modal-close-btn" id="closePrayerModal">Ёпиш</button>
-        </div>
-    </div>
+<!-- Модальное окно Намоз вақтлари -->
+<div class="modal-overlay" id="prayerModal">
+<div class="modal-content">
+<div class="modal-title">🕌 Намоз вақтлари ва Азон</div>
+<select class="select-city" id="citySelect">
+<option value="Tashkent">Тошкент</option>
+<option value="Samarkand">Самарқанд</option>
+<option value="Bukhara">Бухоро</option>
+<option value="Namangan">Наманган</option>
+<option value="Andijan">Андижон</option>
+<option value="Fergana">Фарғона</option>
+<option value="Khiva">Хоразм / Хива</option>
+</select>
+<div class="modal-body" id="prayerTimesList">Юкланмоқда...</div>
+<div style="font-size: 10px; color: #a3e4d7; margin-bottom: 10px;">
+🔊 Вақти келганда Азон овози автоматик янграйди.
+</div>
+<button class="modal-close-btn" id="closePrayerModal">Ёпиш</button>
+</div>
+</div>
 
-    <!-- Модальное окно детальной статистики зикров -->
-    <div class="modal-overlay" id="ratingModal">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitleText">📊 Ҳар бир зикрнинг миқдори</div>
-            <div class="modal-body" id="ratingModalBody">Юкланмоқда...</div>
-            <button class="modal-close-btn" id="closeModalBtn">Ёпиш</button>
-        </div>
-    </div>
+<!-- Модальное окно детальной статистики зикров -->
+<div class="modal-overlay" id="ratingModal">
+<div class="modal-content">
+<div class="modal-title" id="modalTitleText">📊 Ҳар бир зикрнинг миқдори</div>
+<div class="modal-body" id="ratingModalBody">Юкланмоқда...</div>
+<button class="modal-close-btn" id="closeModalBtn">Ёпиш</button>
+</div>
+</div>
 
-    <!-- Аудио азон элемент -->
-    <audio id="azhanAudio" src="https://islamic-audio.com/Azan/makkah.mp3" preload="auto"></audio>
+<!-- Аудио азон элемент -->
+<audio id="azhanAudio" src="https://islamic-audio.com/Azan/makkah.mp3" preload="auto"></audio>
 
-    <script>
-        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (tg) { try { tg.expand(); } catch (e) {} }
+<script>
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+if (tg) { try { tg.expand(); } catch (e) {} }
 
-        const languages = [
-            { code: 'uz', label: "🌐 UZ", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
-            { code: 'ru', label: "🌐 RU", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Всего зикров", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" }
-        ];
-        let langIndex = 0;
+const languages = [
+{ code: 'uz', label: "🌐 UZ", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
+{ code: 'ru', label: "🌐 RU", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Всего зикров", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" }
+];
+let langIndex = 0;
 
-        const i18nZikrs = [
-            { uz: "Субҳаналлоҳ", ru: "Субханаллах", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
-            { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
-            { uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
-            { uz: "Астағфируллоҳ", ru: "Астагфируллах", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
-            { uz: "Саловат", ru: "Салават", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" },
-            { uz: "Бошқа зикрлар", ru: "Другие зикры", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ", key: "tasbih_other" }
-        ];
-        let currentZikrIndex = 0;
+const i18nZikrs = [
+{ uz: "Субҳаналлоҳ", ru: "Субханаллах", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
+{ uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
+{ uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
+{ uz: "Астағфируллоҳ", ru: "Астагфируллах", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
+{ uz: "Саловат", ru: "Салават", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" },
+{ uz: "Бошқа зикрлар", ru: "Другие зикры", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ", key: "tasbih_other" }
+];
+let currentZikrIndex = 0;
 
-        const langToggleBtn = document.getElementById('langToggleBtn');
-        const ratingBtn = document.getElementById('ratingBtn');
-        const prayerBtn = document.getElementById('prayerBtn');
-        const counterDisplay = document.getElementById('counter');
-        const totalBadge = document.getElementById('totalBadge');
-        const arabicText = document.getElementById('arabicText');
-        const zikrLabel = document.getElementById('zikrLabel');
-        const tapBtn = document.getElementById('tapBtn');
-        const adsBtn = document.getElementById('adsBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const tabs = document.querySelectorAll('.zikr-tab');
-        
-        const liveClock = document.getElementById('liveClock');
-        const nextPrayerName = document.getElementById('nextPrayerName');
-        const nextPrayerCountdown = document.getElementById('nextPrayerCountdown');
+const langToggleBtn = document.getElementById('langToggleBtn');
+const ratingBtn = document.getElementById('ratingBtn');
+const prayerBtn = document.getElementById('prayerBtn');
+const counterDisplay = document.getElementById('counter');
+const totalBadge = document.getElementById('totalBadge');
+const arabicText = document.getElementById('arabicText');
+const zikrLabel = document.getElementById('zikrLabel');
+const tapBtn = document.getElementById('tapBtn');
+const adsBtn = document.getElementById('adsBtn');
+const resetBtn = document.getElementById('resetBtn');
+const tabs = document.querySelectorAll('.zikr-tab');
+const liveClock = document.getElementById('liveClock');
+const nextPrayerName = document.getElementById('nextPrayerName');
+const nextPrayerCountdown = document.getElementById('nextPrayerCountdown');
+const ratingModal = document.getElementById('ratingModal');
+const ratingModalBody = document.getElementById('ratingModalBody');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const prayerModal = document.getElementById('prayerModal');
+const closePrayerModal = document.getElementById('closePrayerModal');
+const prayerTimesList = document.getElementById('prayerTimesList');
+const citySelect = document.getElementById('citySelect');
+const azhanAudio = document.getElementById('azhanAudio');
 
-        const ratingModal = document.getElementById('ratingModal');
-        const ratingModalBody = document.getElementById('ratingModalBody');
-        const closeModalBtn = document.getElementById('closeModalBtn');
+let staticPrayerTimes = {
+"Tashkent": { "Бомдод": "05:30", "Пешин": "12:15", "Аср": "15:40", "Шом": "17:10", "Хуфтон": "18:40" },
+"Samarkand": { "Бомдод": "05:35", "Пешин": "12:20", "Аср": "15:45", "Шом": "17:15", "Хуфтон": "18:45" },
+"Bukhara": { "Бомдод": "05:45", "Пешин": "12:30", "Аср": "15:55", "Шом": "17:25", "Хуфтон": "18:55" },
+"Namangan": { "Бомдод": "05:25", "Пешин": "12:10", "Аср": "15:35", "Шом": "17:05", "Хуфтон": "18:35" },
+"Andijan": { "Бомдод": "05:20", "Пешин": "12:05", "Аср": "15:30", "Шом": "17:00", "Хуфтон": "18:30" },
+"Fergana": { "Бомдод": "05:23", "Пешин": "12:08", "Аср": "15:33", "Шом": "17:03", "Хуфтон": "18:33" },
+"Khiva": { "Бомдод": "05:55", "Пешин": "12:40", "Аср": "16:05", "Шом": "17:35", "Хуфтон": "19:05" }
+};
 
-        const prayerModal = document.getElementById('prayerModal');
-        const closePrayerModal = document.getElementById('closePrayerModal');
-        const prayerTimesList = document.getElementById('prayerTimesList');
-        const citySelect = document.getElementById('citySelect');
-        const azhanAudio = document.getElementById('azhanAudio');
+let selectedCity = localStorage.getItem('selected_city') || "Tashkent";
+citySelect.value = selectedCity;
 
-        let staticPrayerTimes = {
-            "Tashkent": { "Бомдод": "05:30", "Пешин": "12:15", "Аср": "15:40", "Шом": "17:10", "Хуфтон": "18:40" },
-            "Samarkand": { "Бомдод": "05:35", "Пешин": "12:20", "Аср": "15:45", "Шом": "17:15", "Хуфтон": "18:45" },
-            "Bukhara": { "Бомдод": "05:45", "Пешин": "12:30", "Аср": "15:55", "Шом": "17:25", "Хуфтон": "18:55" },
-            "Namangan": { "Бомдод": "05:25", "Пешин": "12:10", "Аср": "15:35", "Шом": "17:05", "Хуфтон": "18:35" },
-            "Andijan": { "Бомдод": "05:20", "Пешин": "12:05", "Аср": "15:30", "Шом": "17:00", "Хуфтон": "18:30" },
-            "Fergana": { "Бомдод": "05:23", "Пешин": "12:08", "Аср": "15:33", "Шом": "17:03", "Хуфтон": "18:33" },
-            "Khiva": { "Бомдод": "05:55", "Пешин": "12:40", "Аср": "16:05", "Шом": "17:35", "Хуфтон": "19:05" }
-        };
+function calculateTotalZikr() {
+let total = 0;
+i18nZikrs.forEach(zikr => {
+let val = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
+total += val;
+});
+return total;
+}
 
-        let selectedCity = localStorage.getItem('selected_city') || "Tashkent";
-        citySelect.value = selectedCity;
+function updateUI() {
+const currentLang = languages[langIndex];
+langToggleBtn.textContent = currentLang.label;
+ratingBtn.textContent = currentLang.ratingText;
+prayerBtn.textContent = currentLang.prayerText;
+tapBtn.textContent = currentLang.tap;
+resetBtn.textContent = currentLang.reset;
 
-        function calculateTotalZikr() {
-            let total = 0;
-            i18nZikrs.forEach(zikr => {
-                let val = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
-                total += val;
-            });
-            return total;
-        }
+tabs.forEach((tab, idx) => {
+tab.textContent = i18nZikrs[idx][currentLang.code];
+});
 
-        function updateUI() {
-            const currentLang = languages[langIndex];
-            langToggleBtn.textContent = currentLang.label;
-            ratingBtn.textContent = currentLang.ratingText;
-            prayerBtn.textContent = currentLang.prayerText;
-            tapBtn.textContent = currentLang.tap;
-            resetBtn.textContent = currentLang.reset;
+const zikrObj = i18nZikrs[currentZikrIndex];
+let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
+counterDisplay.textContent = count;
+totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
+arabicText.textContent = zikrObj.arabic;
+zikrLabel.textContent = `${zikrObj[currentLang.code]} ${currentLang.suffix}`;
 
-            tabs.forEach((tab, idx) => {
-                tab.textContent = i18nZikrs[idx][currentLang.code];
-            });
+tabs.forEach((tab, idx) => {
+tab.classList.toggle('active', idx === currentZikrIndex);
+});
+}
 
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            
-            counterDisplay.textContent = count;
-            totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
-            arabicText.textContent = zikrObj.arabic;
-            zikrLabel.textContent = `${zikrObj[currentLang.code]} ${currentLang.suffix}`;
+let lastAzhanPlayedMinute = "";
 
-            tabs.forEach((tab, idx) => {
-                tab.classList.toggle('active', idx === currentZikrIndex);
-            });
-        }
+function updateClockAndPrayers() {
+const now = new Date();
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
+const seconds = String(now.getSeconds()).padStart(2, '0');
 
-        let lastAzhanPlayedMinute = "";
+liveClock.textContent = `${hours}:${minutes}:${seconds}`;
 
-        function updateClockAndPrayers() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            liveClock.textContent = `${hours}:${minutes}:${seconds}`;
+const times = staticPrayerTimes[selectedCity];
+let currentStr = `${hours}:${minutes}`;
 
-            const times = staticPrayerTimes[selectedCity];
-            let currentStr = `${hours}:${minutes}`;
+for (let [name, timeVal] of Object.entries(times)) {
+if (currentStr === timeVal && lastAzhanPlayedMinute !== currentStr) {
+lastAzhanPlayedMinute = currentStr;
+playAzhan();
+}
+}
 
-            for (let [name, timeVal] of Object.entries(times)) {
-                if (currentStr === timeVal && lastAzhanPlayedMinute !== currentStr) {
-                    lastAzhanPlayedMinute = currentStr;
-                    playAzhan();
-                }
-            }
+let nextName = "Бомдод";
+let nextTime = times["Бомдод"];
+for (let [name, timeVal] of Object.entries(times)) {
+if (currentStr < timeVal) {
+nextName = name;
+nextTime = timeVal;
+break;
+}
+}
+nextPrayerName.textContent = nextName;
+nextPrayerCountdown.textContent = nextTime;
+}
 
-            let nextName = "Бомдод";
-            let nextTime = times["Бомдод"];
-            
-            for (let [name, timeVal] of Object.entries(times)) {
-                if (currentStr < timeVal) {
-                    nextName = name;
-                    nextTime = timeVal;
-                    break;
-                }
-            }
-            nextPrayerName.textContent = nextName;
-            nextPrayerCountdown.textContent = nextTime;
-        }
+function playAzhan() {
+try {
+azhanAudio.play().then(() => {
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+}).catch(e => {});
+} catch (err) {}
+}
 
-        function playAzhan() {
-            try {
-                azhanAudio.play().then(() => {
-                    if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                }).catch(e => {});
-            } catch (err) {}
-        }
+setInterval(updateClockAndPrayers, 1000);
+updateClockAndPrayers();
 
-        setInterval(updateClockAndPrayers, 1000);
-        updateClockAndPrayers();
+citySelect.addEventListener('change', (e) => {
+selectedCity = e.target.value;
+localStorage.setItem('selected_city', selectedCity);
+renderPrayerTimes();
+});
 
-        citySelect.addEventListener('change', (e) => {
-            selectedCity = e.target.value;
-            localStorage.setItem('selected_city', selectedCity);
-            renderPrayerTimes();
-        });
+function renderPrayerTimes() {
+const times = staticPrayerTimes[selectedCity];
+let html = `<b>📍 Шаҳар: ${citySelect.options[citySelect.selectedIndex].text}</b><br><br>`;
+for (let [pName, pTime] of Object.entries(times)) {
+html += `<div class="prayer-row"><span>${pName}</span> <b>${pTime}</b></div>`;
+}
+prayerTimesList.innerHTML = html;
+}
 
-        function renderPrayerTimes() {
-            const times = staticPrayerTimes[selectedCity];
-            let html = `<b>📍 Шаҳар: ${citySelect.options[citySelect.selectedIndex].text}</b><br><br>`;
-            for (let [pName, pTime] of Object.entries(times)) {
-                html += `<div class="prayer-row"><span>${pName}</span> <b>${pTime}</b></div>`;
-            }
-            prayerTimesList.innerHTML = html;
-        }
+prayerBtn.addEventListener('click', () => {
+renderPrayerTimes();
+prayerModal.classList.add('active');
+if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+});
 
-        prayerBtn.addEventListener('click', () => {
-            renderPrayerTimes();
-            prayerModal.classList.add('active');
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        });
+closePrayerModal.addEventListener('click', () => {
+prayerModal.classList.remove('active');
+});
 
-        closePrayerModal.addEventListener('click', () => {
-            prayerModal.classList.remove('active');
-        });
+langToggleBtn.addEventListener('click', () => {
+langIndex = (langIndex + 1) % languages.length;
+updateUI();
+if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+});
 
-        langToggleBtn.addEventListener('click', () => {
-            langIndex = (langIndex + 1) % languages.length;
-            updateUI();
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-        });
+ratingBtn.addEventListener('click', () => {
+let userName = 'Фойдаланувчи';
+try {
+if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+userName = tg.initDataUnsafe.user.first_name || userName;
+}
+} catch (e) {}
 
-        ratingBtn.addEventListener('click', () => {
-            let userName = 'Фойдаланувчи';
-            try {
-                if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    userName = tg.initDataUnsafe.user.first_name || userName;
-                }
-            } catch (e) {}
+let langKey = languages[langIndex].code;
+let listHtml = `👤 <b>${userName}</b><br><br>`;
+i18nZikrs.forEach(zikr => {
+let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
+let title = zikr[langKey] || zikr.uz;
+listHtml += `<div class="rating-row"><span>${title}:</span> <b>${count} та</b></div>`;
+});
 
-            let langKey = languages[langIndex].code;
-            let listHtml = `👤 <b>${userName}</b><br><br>`;
-            
-            i18nZikrs.forEach(zikr => {
-                let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
-                let title = zikr[langKey] || zikr.uz;
-                listHtml += `<div class="rating-row"><span>${title}:</span> <b>${count} та</b></div>`;
-            });
+let grandTotal = calculateTotalZikr();
+listHtml += `<br><div class="rating-row" style="border-top: 1px solid #f1c40f; padding-top: 6px;"><span><b>Жами зикрлар:</b></span> <b style="color: #f1c40f;">${grandTotal} та</b></div>`;
+ratingModalBody.innerHTML = listHtml;
+ratingModal.classList.add('active');
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+});
 
-            let grandTotal = calculateTotalZikr();
-            listHtml += `<br><div class="rating-row" style="border-top: 1px solid #f1c40f; padding-top: 6px;"><span><b>Жами зикрлар:</b></span> <b style="color: #f1c40f;">${grandTotal} та</b></div>`;
+closeModalBtn.addEventListener('click', () => {
+ratingModal.classList.remove('active');
+});
 
-            ratingModalBody.innerHTML = listHtml;
-            ratingModal.classList.add('active');
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        });
+tabs.forEach((tab, idx) => {
+tab.addEventListener('click', () => {
+currentZikrIndex = idx;
+updateUI();
+if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+});
+});
 
-        closeModalBtn.addEventListener('click', () => {
-            ratingModal.classList.remove('active');
-        });
+tapBtn.addEventListener('click', () => {
+const zikrObj = i18nZikrs[currentZikrIndex];
+let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
+count++;
+localStorage.setItem(zikrObj.key, count);
 
-        tabs.forEach((tab, idx) => {
-            tab.addEventListener('click', () => {
-                currentZikrIndex = idx;
-                updateUI();
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            });
-        });
+counterDisplay.textContent = count;
+totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
 
-        tapBtn.addEventListener('click', () => {
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-            count++;
-            
-            localStorage.setItem(zikrObj.key, count);
-            counterDisplay.textContent = count;
-            totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
+if (tg && tg.HapticFeedback) {
+tg.HapticFeedback.impactOccurred('medium');
+}
+});
 
-            if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-        });
+adsBtn.addEventListener('click', () => {
+try {
+if (typeof show_12215662 === 'function') {
+show_12215662();
+}
+} catch (e) {}
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+});
 
-        adsBtn.addEventListener('click', () => {
-            try {
-                if (typeof show_12215662 === 'function') {
-                    show_12215662();
-                }
-            } catch (e) {}
-            if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-        });
+resetBtn.addEventListener('click', () => {
+const zikrObj = i18nZikrs[currentZikrIndex];
+if (confirm(`Ушбу зикр ҳисоблагичини ноллашга ишончингиз комилми?`)) {
+localStorage.setItem(zikrObj.key, 0);
+counterDisplay.textContent = 0;
+totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
+if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+}
+});
 
-        resetBtn.addEventListener('click', () => {
-            const zikrObj = i18nZikrs[currentZikrIndex];
-            if (confirm(`Ушбу зикр ҳисоблагичини ноллашга ишончингиз комилми?`)) {
-                localStorage.setItem(zikrObj.key, 0);
-                counterDisplay.textContent = 0;
-                totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
-                if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            }
-        });
-
-        updateUI();
-    </script>
+updateUI();
+</script>
 </body>
 </html>
