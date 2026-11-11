@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Муборак Тасбеҳ ва Намоз вақтлари</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Рекламный скрипт Monetag -->
     <script src='//libtl.com/sdk.js' data-zone='12215662' data-sdk='show_12215662'></script>
     <style>
         * {
@@ -40,15 +39,18 @@
             z-index: 1;
         }
 
+        /* Ўроқ шаклидаги ярим ой */
         .moon {
             position: absolute;
-            top: 75px;
+            top: 70px;
             left: 20px;
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle at 30% 30%, #fffdf0, #f1c40f);
+            width: 38px;
+            height: 38px;
+            background: transparent;
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.7);
+            /* Чап томонидан соя бериб, ярим ой (ўроқ) шаклини ҳосил қиламиз */
+            box-shadow: -7px 2px 0 0 #f1c40f;
+            filter: drop-shadow(0 0 8px rgba(241, 196, 15, 0.8));
         }
 
         .stars {
@@ -73,7 +75,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             padding: 0 5px;
         }
         .top-btns {
@@ -98,12 +100,13 @@
             text-shadow: 0 2px 6px rgba(0,0,0,0.8);
         }
 
-        /* Блок часов и намаза сверху */
+        /* Соат ва намоз вақти панели озроқ пастга силжитиб юборилди (margin-top қўшилди) */
         .widget-panel {
             background: rgba(8, 28, 22, 0.75);
             border: 1px solid rgba(241, 196, 15, 0.4);
             border-radius: 12px;
             padding: 6px 10px;
+            margin-top: 14px;
             margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
@@ -372,11 +375,11 @@
             </div>
         </div>
         
-        <!-- Живой соат ва кейинги намоз вақти панели -->
+        <!-- Панель часов сдвинута ниже, чтобы луна оставалась видимой -->
         <div class="widget-panel">
             <div class="live-clock" id="liveClock">00:00:00</div>
             <div class="next-prayer-info" id="nextPrayerInfo">
-                Кейинги: <span id="nextPrayerName">Бодило</span><br>
+                Кейинги: <span id="nextPrayerName">--</span><br>
                 Қолди: <span id="nextPrayerCountdown">--:--</span>
             </div>
         </div>
@@ -431,7 +434,7 @@
             </select>
             <div class="modal-body" id="prayerTimesList">Юкланмоқда...</div>
             <div style="font-size: 10px; color: #a3e4d7; margin-bottom: 10px;">
-                🔊 Вақти келганда Азон овози автоматик янraydi.
+                🔊 Вақти келганда Азон овози автоматик янграйди.
             </div>
             <button class="modal-close-btn" id="closePrayerModal">Ёпиш</button>
         </div>
@@ -450,8 +453,8 @@
     <audio id="azhanAudio" src="https://islamic-audio.com/Azan/makkah.mp3" preload="auto"></audio>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        try { tg.expand(); } catch (e) {}
+        const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (tg) { try { tg.expand(); } catch (e) {} }
 
         const languages = [
             { code: 'uz', label: "🌐 UZ", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
@@ -469,7 +472,6 @@
         ];
         let currentZikrIndex = 0;
 
-        // Элементлар
         const langToggleBtn = document.getElementById('langToggleBtn');
         const ratingBtn = document.getElementById('ratingBtn');
         const prayerBtn = document.getElementById('prayerBtn');
@@ -619,7 +621,6 @@
             if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         });
 
-        // Статистика кнопкаси босилганда ҳар бир зикрнинг миқдорини чиқариш
         ratingBtn.addEventListener('click', () => {
             let userName = 'Фойдаланувчи';
             try {
