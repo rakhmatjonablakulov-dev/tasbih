@@ -27,7 +27,6 @@ padding: 10px 15px;
 overflow-x: hidden;
 position: relative;
 }
-/* Небесный слой с луной и звездами */
 .sky-elements {
 position: absolute;
 top: 0;
@@ -37,7 +36,6 @@ height: 60%;
 pointer-events: none;
 z-index: 1;
 }
-/* Ўроқ шаклидаги ярим ой - тўлиқ кўринадиган очиқ жойга қўйилди */
 .moon {
 position: absolute;
 top: 52px;
@@ -77,6 +75,8 @@ padding: 0 5px;
 .top-btns {
 display: flex;
 gap: 5px;
+flex-wrap: wrap;
+justify-content: flex-end;
 }
 .action-btn {
 background: rgba(15, 40, 30, 0.8);
@@ -95,7 +95,6 @@ font-weight: 600;
 color: #f1c40f;
 text-shadow: 0 2px 6px rgba(0,0,0,0.8);
 }
-/* Вкладки зикров */
 .zikr-selector {
 display: flex;
 gap: 6px;
@@ -129,7 +128,6 @@ border-color: #f1c40f;
 box-shadow: 0 0 12px rgba(241, 196, 15, 0.7);
 }
 
-/* Соат ва намоз вақти панели «Субҳаналлоҳ» тугмасининг пастида */
 .widget-panel {
 background: rgba(8, 28, 22, 0.75);
 border: 1px solid rgba(241, 196, 15, 0.4);
@@ -160,7 +158,6 @@ color: #f1c40f;
 font-weight: bold;
 }
 
-/* Центральный блок счетчика */
 .counter-container {
 text-align: center;
 margin: auto 0;
@@ -186,11 +183,12 @@ text-shadow: 0 0 20px rgba(241, 196, 15, 0.9), 0 2px 5px rgba(0,0,0,0.8);
 line-height: 1;
 }
 .counter-arabic {
-font-size: 20px;
+font-size: 18px;
 color: #f1c40f;
 margin-top: 3px;
 font-weight: bold;
 text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+padding: 0 10px;
 }
 .counter-label {
 font-size: 12px;
@@ -199,7 +197,7 @@ margin-top: 3px;
 font-weight: 500;
 text-shadow: 0 1px 3px rgba(0,0,0,0.9);
 }
-/* Большая круглая кнопка тасбеха */
+
 .tap-button-container {
 display: flex;
 justify-content: center;
@@ -232,7 +230,7 @@ text-shadow: 0 2px 4px rgba(0,0,0,0.7);
 transform: scale(0.92);
 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-/* Кнопка монетизации */
+
 .ads-button-container {
 width: 100%;
 display: flex;
@@ -273,7 +271,7 @@ font-weight: bold;
 cursor: pointer;
 box-shadow: 0 4px 12px rgba(241, 196, 15, 0.5);
 }
-/* Модальные окна */
+
 .modal-overlay {
 position: fixed;
 top: 0; left: 0; width: 100%; height: 100%;
@@ -295,7 +293,7 @@ pointer-events: auto;
 background: linear-gradient(135deg, #0b3c2e, #062e21);
 border: 2px solid #f1c40f;
 width: 90%;
-max-width: 340px;
+max-width: 360px;
 max-height: 85vh;
 overflow-y: auto;
 padding: 16px;
@@ -348,6 +346,49 @@ border-radius: 8px;
 margin-bottom: 10px;
 font-size: 12px;
 }
+
+/* Зикр ва саловатлар тўплами карточкалари */
+.collection-card {
+background: rgba(15, 45, 35, 0.85);
+border: 1px solid rgba(241, 196, 15, 0.4);
+border-radius: 10px;
+padding: 10px;
+margin-bottom: 10px;
+transition: background 0.2s;
+}
+.collection-card:hover {
+border-color: #f1c40f;
+}
+.collection-card .title-uz {
+font-size: 13px;
+font-weight: bold;
+color: #f1c40f;
+margin-bottom: 4px;
+}
+.collection-card .ar-text {
+font-size: 16px;
+color: #ffffff;
+text-align: right;
+margin: 4px 0;
+direction: rtl;
+}
+.collection-card .meaning {
+font-size: 11px;
+color: #a3e4d7;
+font-style: italic;
+margin-bottom: 6px;
+}
+.select-zikr-btn {
+background: #f1c40f;
+color: #0b3c2e;
+border: none;
+padding: 4px 10px;
+border-radius: 6px;
+font-size: 10px;
+font-weight: bold;
+cursor: pointer;
+float: right;
+}
 </style>
 </head>
 <body>
@@ -359,13 +400,13 @@ font-size: 12px;
 <div class="top-row">
 <div class="title" id="appTitle">✨ Тасбеҳ & Намоз ✨</div>
 <div class="top-btns">
+<button class="action-btn" id="collectionBtn">📚 Тўплам</button>
 <button class="action-btn" id="prayerBtn">🕌 Намоз</button>
 <button class="action-btn" id="ratingBtn">📊 Статистика</button>
 <button class="action-btn" id="langToggleBtn">🌐 UZ</button>
 </div>
 </div>
 
-<!-- Вкладки зикров -->
 <div class="zikr-selector" id="zikrSelector">
 <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
 <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
@@ -375,7 +416,6 @@ font-size: 12px;
 <div class="zikr-tab" data-index="5">Бошқа зикрлар</div>
 </div>
 
-<!-- Соат ва намоз вақти панели -->
 <div class="widget-panel">
 <div class="live-clock" id="liveClock">00:00:00</div>
 <div class="next-prayer-info" id="nextPrayerInfo">
@@ -396,7 +436,6 @@ font-size: 12px;
 <button class="tap-button" id="tapBtn">Зикр</button>
 </div>
 
-<!-- Монетизационная кнопка -->
 <div class="ads-button-container">
 <button class="ads-btn" id="adsBtn">
 <span id="adsTitleText">⭐ Лоихани ривожлантириш учун босинг ⭐</span><br>
@@ -409,7 +448,6 @@ font-size: 12px;
 <button class="reset-btn" id="resetBtn">Ноллаш 🔄</button>
 </div>
 
-<!-- Модальное окно Намоз вақтлари -->
 <div class="modal-overlay" id="prayerModal">
 <div class="modal-content">
 <div class="modal-title">🕌 Намоз вақтлари ва Азон</div>
@@ -430,7 +468,6 @@ font-size: 12px;
 </div>
 </div>
 
-<!-- Модальное окно детальной статистики зикров -->
 <div class="modal-overlay" id="ratingModal">
 <div class="modal-content">
 <div class="modal-title" id="modalTitleText">📊 Ҳар бир зикрнинг миқдори</div>
@@ -439,7 +476,17 @@ font-size: 12px;
 </div>
 </div>
 
-<!-- Аудио азон элемент -->
+<!-- Модальное окно тўплам (Зикр ва Саловатлар) -->
+<div class="modal-overlay" id="collectionModal">
+<div class="modal-content">
+<div class="modal-title">📚 Зикр ва Саловатлар тўплами</div>
+<div class="modal-body" id="collectionModalBody">
+<!-- Зикр ва саловатлар рўйхати JavaScript орқали чиқади -->
+</div>
+<button class="modal-close-btn" id="closeCollectionModal">Ёпиш</button>
+</div>
+</div>
+
 <audio id="azhanAudio" src="https://islamic-audio.com/Azan/makkah.mp3" preload="auto"></audio>
 
 <script>
@@ -447,8 +494,8 @@ const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : 
 if (tg) { try { tg.expand(); } catch (e) {} }
 
 const languages = [
-{ code: 'uz', label: "🌐 UZ", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
-{ code: 'ru', label: "🌐 RU", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", totalText: "Всего зикров", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" }
+{ code: 'uz', label: "🌐 UZ", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", collectionText: "📚 Тўплам", totalText: "Жами зикр", tap: "Зикр", reset: "Ноллаш 🔄", suffix: "марта ўқилди" },
+{ code: 'ru', label: "🌐 RU", ratingText: "📊 Статистика", prayerText: "🕌 Намоз", collectionText: "📚 Сборник", totalText: "Всего зикров", tap: "Зикр", reset: "Сброс 🔄", suffix: "прочитано раз" }
 ];
 let langIndex = 0;
 
@@ -457,224 +504,4 @@ const i18nZikrs = [
 { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
 { uz: "Ла илаҳа иллаллоҳ", ru: "Ла илаха илляллах", arabic: "لَا إِلَٰهَ إِلَّا ٱللَّهُ", key: "tasbih_lailaha" },
 { uz: "Астағфируллоҳ", ru: "Астагфируллах", arabic: "أَسْتَغْفِرُ ٱللَّهَ", key: "tasbih_astagfirullah" },
-{ uz: "Саловат", ru: "Салават", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih_salovat" },
-{ uz: "Бошқа зикрлар", ru: "Другие зикры", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِٱللَّهِ", key: "tasbih_other" }
-];
-let currentZikrIndex = 0;
-
-const langToggleBtn = document.getElementById('langToggleBtn');
-const ratingBtn = document.getElementById('ratingBtn');
-const prayerBtn = document.getElementById('prayerBtn');
-const counterDisplay = document.getElementById('counter');
-const totalBadge = document.getElementById('totalBadge');
-const arabicText = document.getElementById('arabicText');
-const zikrLabel = document.getElementById('zikrLabel');
-const tapBtn = document.getElementById('tapBtn');
-const adsBtn = document.getElementById('adsBtn');
-const resetBtn = document.getElementById('resetBtn');
-const tabs = document.querySelectorAll('.zikr-tab');
-const liveClock = document.getElementById('liveClock');
-const nextPrayerName = document.getElementById('nextPrayerName');
-const nextPrayerCountdown = document.getElementById('nextPrayerCountdown');
-const ratingModal = document.getElementById('ratingModal');
-const ratingModalBody = document.getElementById('ratingModalBody');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const prayerModal = document.getElementById('prayerModal');
-const closePrayerModal = document.getElementById('closePrayerModal');
-const prayerTimesList = document.getElementById('prayerTimesList');
-const citySelect = document.getElementById('citySelect');
-const azhanAudio = document.getElementById('azhanAudio');
-
-let staticPrayerTimes = {
-"Tashkent": { "Бомдод": "05:30", "Пешин": "12:15", "Аср": "15:40", "Шом": "17:10", "Хуфтон": "18:40" },
-"Samarkand": { "Бомдод": "05:35", "Пешин": "12:20", "Аср": "15:45", "Шом": "17:15", "Хуфтон": "18:45" },
-"Bukhara": { "Бомдод": "05:45", "Пешин": "12:30", "Аср": "15:55", "Шом": "17:25", "Хуфтон": "18:55" },
-"Namangan": { "Бомдод": "05:25", "Пешин": "12:10", "Аср": "15:35", "Шом": "17:05", "Хуфтон": "18:35" },
-"Andijan": { "Бомдод": "05:20", "Пешин": "12:05", "Аср": "15:30", "Шом": "17:00", "Хуфтон": "18:30" },
-"Fergana": { "Бомдод": "05:23", "Пешин": "12:08", "Аср": "15:33", "Шом": "17:03", "Хуфтон": "18:33" },
-"Khiva": { "Бомдод": "05:55", "Пешин": "12:40", "Аср": "16:05", "Шом": "17:35", "Хуфтон": "19:05" }
-};
-
-let selectedCity = localStorage.getItem('selected_city') || "Tashkent";
-citySelect.value = selectedCity;
-
-function calculateTotalZikr() {
-let total = 0;
-i18nZikrs.forEach(zikr => {
-let val = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
-total += val;
-});
-return total;
-}
-
-function updateUI() {
-const currentLang = languages[langIndex];
-langToggleBtn.textContent = currentLang.label;
-ratingBtn.textContent = currentLang.ratingText;
-prayerBtn.textContent = currentLang.prayerText;
-tapBtn.textContent = currentLang.tap;
-resetBtn.textContent = currentLang.reset;
-
-tabs.forEach((tab, idx) => {
-tab.textContent = i18nZikrs[idx][currentLang.code];
-});
-
-const zikrObj = i18nZikrs[currentZikrIndex];
-let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-counterDisplay.textContent = count;
-totalBadge.textContent = `${currentLang.totalText}: ${calculateTotalZikr()}`;
-arabicText.textContent = zikrObj.arabic;
-zikrLabel.textContent = `${zikrObj[currentLang.code]} ${currentLang.suffix}`;
-
-tabs.forEach((tab, idx) => {
-tab.classList.toggle('active', idx === currentZikrIndex);
-});
-}
-
-let lastAzhanPlayedMinute = "";
-
-function updateClockAndPrayers() {
-const now = new Date();
-const hours = String(now.getHours()).padStart(2, '0');
-const minutes = String(now.getMinutes()).padStart(2, '0');
-const seconds = String(now.getSeconds()).padStart(2, '0');
-
-liveClock.textContent = `${hours}:${minutes}:${seconds}`;
-
-const times = staticPrayerTimes[selectedCity];
-let currentStr = `${hours}:${minutes}`;
-
-for (let [name, timeVal] of Object.entries(times)) {
-if (currentStr === timeVal && lastAzhanPlayedMinute !== currentStr) {
-lastAzhanPlayedMinute = currentStr;
-playAzhan();
-}
-}
-
-let nextName = "Бомдод";
-let nextTime = times["Бомдод"];
-for (let [name, timeVal] of Object.entries(times)) {
-if (currentStr < timeVal) {
-nextName = name;
-nextTime = timeVal;
-break;
-}
-}
-nextPrayerName.textContent = nextName;
-nextPrayerCountdown.textContent = nextTime;
-}
-
-function playAzhan() {
-try {
-azhanAudio.play().then(() => {
-if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-}).catch(e => {});
-} catch (err) {}
-}
-
-setInterval(updateClockAndPrayers, 1000);
-updateClockAndPrayers();
-
-citySelect.addEventListener('change', (e) => {
-selectedCity = e.target.value;
-localStorage.setItem('selected_city', selectedCity);
-renderPrayerTimes();
-});
-
-function renderPrayerTimes() {
-const times = staticPrayerTimes[selectedCity];
-let html = `<b>📍 Шаҳар: ${citySelect.options[citySelect.selectedIndex].text}</b><br><br>`;
-for (let [pName, pTime] of Object.entries(times)) {
-html += `<div class="prayer-row"><span>${pName}</span> <b>${pTime}</b></div>`;
-}
-prayerTimesList.innerHTML = html;
-}
-
-prayerBtn.addEventListener('click', () => {
-renderPrayerTimes();
-prayerModal.classList.add('active');
-if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-});
-
-closePrayerModal.addEventListener('click', () => {
-prayerModal.classList.remove('active');
-});
-
-langToggleBtn.addEventListener('click', () => {
-langIndex = (langIndex + 1) % languages.length;
-updateUI();
-if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-});
-
-ratingBtn.addEventListener('click', () => {
-let userName = 'Фойдаланувчи';
-try {
-if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-userName = tg.initDataUnsafe.user.first_name || userName;
-}
-} catch (e) {}
-
-let langKey = languages[langIndex].code;
-let listHtml = `👤 <b>${userName}</b><br><br>`;
-i18nZikrs.forEach(zikr => {
-let count = localStorage.getItem(zikr.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
-let title = zikr[langKey] || zikr.uz;
-listHtml += `<div class="rating-row"><span>${title}:</span> <b>${count} та</b></div>`;
-});
-
-let grandTotal = calculateTotalZikr();
-listHtml += `<br><div class="rating-row" style="border-top: 1px solid #f1c40f; padding-top: 6px;"><span><b>Жами зикрлар:</b></span> <b style="color: #f1c40f;">${grandTotal} та</b></div>`;
-ratingModalBody.innerHTML = listHtml;
-ratingModal.classList.add('active');
-if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-});
-
-closeModalBtn.addEventListener('click', () => {
-ratingModal.classList.remove('active');
-});
-
-tabs.forEach((tab, idx) => {
-tab.addEventListener('click', () => {
-currentZikrIndex = idx;
-updateUI();
-if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-});
-});
-
-tapBtn.addEventListener('click', () => {
-const zikrObj = i18nZikrs[currentZikrIndex];
-let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
-count++;
-localStorage.setItem(zikrObj.key, count);
-
-counterDisplay.textContent = count;
-totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
-
-if (tg && tg.HapticFeedback) {
-tg.HapticFeedback.impactOccurred('medium');
-}
-});
-
-adsBtn.addEventListener('click', () => {
-try {
-if (typeof show_12215662 === 'function') {
-show_12215662();
-}
-} catch (e) {}
-if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-});
-
-resetBtn.addEventListener('click', () => {
-const zikrObj = i18nZikrs[currentZikrIndex];
-if (confirm(`Ушбу зикр ҳисоблагичини ноллашга ишончингиз комилми?`)) {
-localStorage.setItem(zikrObj.key, 0);
-counterDisplay.textContent = 0;
-totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
-if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-}
-});
-
-updateUI();
-</script>
-</body>
-</html>
+{ uz: "Саловат", ru: "Салават", arabic: "صَلَّى ٱللَّهُ عَلَيْهِ وَسَلَّمَ", key: "tasbih
