@@ -171,19 +171,32 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     await callback.answer("Бажарилди!")
 
 
-# 🏆 РЕЙТИНГ ТУГМАСИ ВА ФУНКЦИЯСИ
+# 🏆 РЕЙТИНГ ТУГМАСИ ВА ФУНКЦИЯСИ (ТЎЛИҚ ЯНГИЛАНГАН)
 @dp.message(lambda msg: msg.text == "🏆 Рейтинг")
 async def show_leaderboard(message: types.Message):
     sorted_users = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)[:10]
     
-    text = "🏆 <b>Энг фаол зикр қилувчилар рейтинги (Топ-10)</b>\n\n"
+    text = (
+        "🏆 <b>Энг фаол зикр қилувчилар рейтинги (Топ-10)</b>\n\n"
+        "💡 <b>Баллар ва зикрлар нима учун берилади?</b>\n"
+        "• Мини-иловада зикр қилганингизда;\n"
+        "• Кунлик вазифаларни бажарганингизда;\n"
+        "• Рекламаларни кўриб лойиҳани қўллаб-қувватлаганингизда балансингизга баллар қўшилиб боради!\n\n"
+        "━━━━━━━━━━━━━━━━━━━\n"
+        "🏅 <b>Пешқадамлар рўйхати:</b>\n\n"
+    )
+    
     medals = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
     
     for index, (uid, balance) in enumerate(sorted_users):
         name = user_names.get(uid, f"Фойдаланувчи {uid}")
         medal = medals[index] if index < len(medals) else f"{index+1}."
-        text += f"{medal} <b>{name}</b> — {balance} балл\n"
         
+        # Баллар ҳамда зикрлар сонини кўрсатиш
+        text += f"{medal} <b>{name}</b>\n    └ 💎 Баллар: <b>{balance}</b> | 📿 Зикрлар: ~{balance * 3}\n\n"
+        
+    text += "<i>✨ Қанча кўп фаол бўлсангиз, рейтинг юқорисига чиқасиз!</i>"
+    
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
 
 
