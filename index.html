@@ -812,7 +812,7 @@ if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
 resetBtn.addEventListener('click', () => {
 const zikrObj = i18nZikrs[currentZikrIndex];
-if (confirm(`Ушбу зикр ҳисоблагичини ноллашга ишончингиз комилми?`)) {
+if (confirm(`Зикрлар ҳисобини ноль холатга келтиришга ишончингиз комилми?`)) {
 localStorage.setItem(zikrObj.key, 0);
 counterDisplay.textContent = 0;
 totalBadge.textContent = `${languages[langIndex].totalText}: ${calculateTotalZikr()}`;
