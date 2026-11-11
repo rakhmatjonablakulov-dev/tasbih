@@ -37,10 +37,10 @@ height: 60%;
 pointer-events: none;
 z-index: 1;
 }
-/* Ўроқ шаклидаги ярим ой - Ўнг томонга кўчирилди ва сояси мосланди */
+/* Ўроқ шаклидаги ярим ой - Соатдан юқорига ва ўнг томонга жойлаштирилди */
 .moon {
 position: absolute;
-top: 70px;
+top: 15px;
 right: 20px;
 width: 38px;
 height: 38px;
@@ -128,7 +128,7 @@ border-color: #f1c40f;
 box-shadow: 0 0 12px rgba(241, 196, 15, 0.7);
 }
 
-/* Соат ва намоз вақти панели «Субҳаналлоҳ» тугмасининг пастига туширилди */
+/* Соат ва намоз вақти панели */
 .widget-panel {
 background: rgba(8, 28, 22, 0.75);
 border: 1px solid rgba(241, 196, 15, 0.4);
@@ -364,7 +364,7 @@ font-size: 12px;
 </div>
 </div>
 
-<!-- Вкладки зикров (Субҳаналлоҳ ва бошқа тугмалар) -->
+<!-- Вкладки зикров -->
 <div class="zikr-selector" id="zikrSelector">
 <div class="zikr-tab active" data-index="0">Субҳаналлоҳ</div>
 <div class="zikr-tab" data-index="1">Алҳамдулиллаҳ</div>
@@ -374,7 +374,7 @@ font-size: 12px;
 <div class="zikr-tab" data-index="5">Бошқа зикрлар</div>
 </div>
 
-<!-- Соат ва намоз вақти панели «Субҳаналлоҳ» тугмалари пастига туширилди -->
+<!-- Соат ва намоз вақти панели -->
 <div class="widget-panel">
 <div class="live-clock" id="liveClock">00:00:00</div>
 <div class="next-prayer-info" id="nextPrayerInfo">
@@ -642,7 +642,7 @@ if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 
 tapBtn.addEventListener('click', () => {
 const zikrObj = i18nZikrs[currentZikrIndex];
-let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikr.key)) : 0;
+let count = localStorage.getItem(zikrObj.key) ? parseInt(localStorage.getItem(zikrObj.key)) : 0;
 count++;
 localStorage.setItem(zikrObj.key, count);
 
