@@ -17,7 +17,6 @@ dp = Dispatcher()
 # Муваққат базалар
 users = set()                  
 user_balances = {ADMIN_ID: 1000} # Мисол учун админга балл бериб турамиз
-user_zikrs = {ADMIN_ID: 3000}    # Фойдаланувчиларнинг зикрлар сонини сақлаш учун база
 user_names = {}                # Фойдаланувчи исмларини сақлаш учун
 
 # Вазифалар базаси (id, title, reward, url)
@@ -80,8 +79,6 @@ async def cmd_start(message: types.Message):
     
     if user_id not in user_balances:
         user_balances[user_id] = 0
-    if user_id not in user_zikrs:
-        user_zikrs[user_id] = 0
 
     user_name = message.from_user.first_name
     await message.answer(
@@ -179,16 +176,15 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     await callback.answer("Бажарилди!")
 
 
-# 🏆 РЕЙТИНГ ТУГМАСИ (ЗИКРЛАР СОНИ БИЛАН ЯНГИЛАНГАН)
+# 🏆 РЕЙТИНГ ТУГМАСИ (ФАҚАТ БАЛЛАР БИЛАН)
 @dp.message(lambda msg: msg.text == "🏆 Рейтинг")
 async def show_leaderboard(message: types.Message):
-    # Рейтингни баллар бўйича саралаймиз (ёки хоҳласангиз user_zikrs бўйича ҳам саралаш мумкин)
     sorted_users = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)[:10]
     
     text = (
-        "🏆 <b>Энг фаол зикр қилувчилар рейтинги (Топ-10)</b>\n\n"
-        "💡 <b>Баллар ва зикрлар нима учун берилади?</b>\n"
-        "• Мини-иловада зикр қилганингизда;\n"
+        "🏆 <b>Энг фаол фойдаланувчилар рейтинги (Топ-10)</b>\n\n"
+        "💡 <b>Баллар нима учун берилади?</b>\n"
+        "• Мини-иловада фаол бўлганингизда;\n"
         "• Кунлик вазифаларни бажарганингизда;\n"
         "• Рекламаларни кўриб лойиҳани қўллаб-қувватлаганингизда балансингизга баллар қўшилиб боради!\n\n"
         "━━━━━━━━━━━━━━━━━━━\n"
@@ -201,12 +197,9 @@ async def show_leaderboard(message: types.Message):
         name = user_names.get(uid, f"Фойдаланувчи {uid}")
         medal = medals[index] if index < len(medals) else f"{index+1}."
         
-        # Ҳар бир фойдаланувчининг аниқ зикрлар сонини оламиз (агар бўлмаса балансга қараб ҳисоблаймиз ёки базадан оламиз)
-        zikr_count = user_zikrs.get(uid, balance * 5) # Мисол учун ҳар 1 балл 5 та зикрга тенг ёки тўғридан-тўғри олинади
+        text += f"{medal} <b>{name}</b> — 💎 <b>{balance} балл</b>\n\n"
         
-        text += f"{medal} <b>{name}</b>\n    └ 📿 Зикрлар: <b>{zikr_count:,} та</b> | 💎 Баллар: <b>{balance}</b>\n\n"
-        
-    text += "<i>✨ Қанча кўп зикр қилсангиз, рейтинг юқорисига чиқасиз!</i>"
+    text += "<i>✨ Қанча кўп фаол бўлсангиз, рейтинг юқорисига чиқасиз!</i>"
     
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
 
@@ -281,11 +274,6 @@ async def task_callback_handler(callback: types.CallbackQuery):
         user_balances[user_id] = 0
         
     user_balances[user_id] += target_task['reward']
-    
-    # Шунингдек, вазифа учун ҳам мукофот тариқасида зикрлар сонини қўшиб қўямиз (масалан, баллар * 10 миқдорида)
-    if user_id not in user_zikrs:
-        user_zikrs[user_id] = 0
-    user_zikrs[user_id] += target_task['reward'] * 10
     
     await callback.answer(f"🎉 Табриклаймиз! +{target_task['reward']} балл қўшилди.", show_alert=True)
     
