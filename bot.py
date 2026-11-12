@@ -17,11 +17,17 @@ dp = Dispatcher()
 # Муваққат базалар
 users = set()                  
 user_balances = {ADMIN_ID: 1000} # Мисол учун админга балл бериб турамиз
+user_zikrs = {ADMIN_ID: 3000}    # Фойдаланувчиларнинг зикрлар сонини сақлаш учун база
 user_names = {}                # Фойдаланувчи исмларини сақлаш учун
+
+# Вазифалар базаси (id, title, reward, url)
 tasks_list = [                 
-    {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50},
-    {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30}
+    {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50, "url": "https://t.me/telegram"},
+    {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30, "url": "https://t.me/telegram"}
 ]
+
+# Фойдаланувчилар бажарган вазифаларини сақлаш: {user_id: [task_id_1, task_id_2]}
+user_completed_tasks = {}
 
 # FSM Ҳолатлари
 class WithdrawStates(StatesGroup):
@@ -37,19 +43,19 @@ class AdminBalance(StatesGroup):
 class AdminTask(StatesGroup):
     waiting_title = State()
     waiting_reward = State()
+    waiting_url = State()
 
 
-# 🌟 Энг чиройли ва замонавий асосий меню (Тасбеҳни очиш кнопкаси узунасига ўртада)
+# 🌟 Энг чиройли ва замонавий асосий меню
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
-    builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")  # 1-qator: yolg'iz o'zi cho'zilib turadi
+    builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")  
     builder.button(text="💳 Пулни ечиб олиш")
     builder.button(text="🏆 Рейтинг")
     builder.button(text="👥 Дўстларни таклиф")
     builder.button(text="📋 Вазифалар")
     builder.button(text="⭐ Рекламани кўриш")
     
-    # adjust(1, 2, 2, 2) — 1-qatorda 1 та, қолган қаторларда 2 тадан тугма жойлаштиради
     builder.adjust(1, 2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
 
@@ -74,6 +80,8 @@ async def cmd_start(message: types.Message):
     
     if user_id not in user_balances:
         user_balances[user_id] = 0
+    if user_id not in user_zikrs:
+        user_zikrs[user_id] = 0
 
     user_name = message.from_user.first_name
     await message.answer(
@@ -171,9 +179,10 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     await callback.answer("Бажарилди!")
 
 
-# 🏆 РЕЙТИНГ ТУГМАСИ ВА ФУНКЦИЯСИ (ТЎЛИҚ ЯНГИЛАНГАН)
+# 🏆 РЕЙТИНГ ТУГМАСИ (ЗИКРЛАР СОНИ БИЛАН ЯНГИЛАНГАН)
 @dp.message(lambda msg: msg.text == "🏆 Рейтинг")
 async def show_leaderboard(message: types.Message):
+    # Рейтингни баллар бўйича саралаймиз (ёки хоҳласангиз user_zikrs бўйича ҳам саралаш мумкин)
     sorted_users = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)[:10]
     
     text = (
@@ -192,10 +201,12 @@ async def show_leaderboard(message: types.Message):
         name = user_names.get(uid, f"Фойдаланувчи {uid}")
         medal = medals[index] if index < len(medals) else f"{index+1}."
         
-        # Баллар ҳамда зикрлар сонини кўрсатиш
-        text += f"{medal} <b>{name}</b>\n    └ 💎 Баллар: <b>{balance}</b> | 📿 Зикрлар: ~{balance * 3}\n\n"
+        # Ҳар бир фойдаланувчининг аниқ зикрлар сонини оламиз (агар бўлмаса балансга қараб ҳисоблаймиз ёки базадан оламиз)
+        zikr_count = user_zikrs.get(uid, balance * 5) # Мисол учун ҳар 1 балл 5 та зикрга тенг ёки тўғридан-тўғри олинади
         
-    text += "<i>✨ Қанча кўп фаол бўлсангиз, рейтинг юқорисига чиқасиз!</i>"
+        text += f"{medal} <b>{name}</b>\n    └ 📿 Зикрлар: <b>{zikr_count:,} та</b> | 💎 Баллар: <b>{balance}</b>\n\n"
+        
+    text += "<i>✨ Қанча кўп зикр қилсангиз, рейтинг юқорисига чиқасиз!</i>"
     
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
 
@@ -218,14 +229,75 @@ async def process_referral(message: types.Message):
 @dp.message(lambda msg: msg.text == "📋 Вазифалар")
 async def process_tasks(message: types.Message):
     if not tasks_list:
-        await message.answer("📋 Ҳозирча янги вазифалар мавжуд эмас.")
+        await message.answer("📋 Ҳозирча янги вазифалар мавжуд эмас.", reply_markup=get_main_menu())
         return
     
-    text = "📋 <b>Кунлик вазифалар ва бонуслар</b>\n\nҚуйидаги вазифаларни бажариб қўшимча баллар жамғаринг:\n\n"
+    user_id = message.from_user.id
+    completed = user_completed_tasks.get(user_id, [])
+    
+    await message.answer("📋 <b>Кунлик вазифалар ва бонуслар</b>\n\nҚуйидаги вазифаларни бажариб баллар жамғаринг:", parse_mode="HTML")
+    
     for task in tasks_list:
-        text += f"🔹 {task['title']} — <b>+{task['reward']} балл</b>\n"
+        builder = InlineKeyboardBuilder()
+        builder.button(text="🔗 Бажариш", url=task['url'])
         
-    await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
+        if task['id'] in completed:
+            builder.button(text="✅ Бажарилган", callback_data=f"noop_{task['id']}")
+        else:
+            builder.button(text="🎁 Текшириш ва олиш", callback_data=f"check_task_{task['id']}")
+            
+        builder.adjust(2)
+        
+        await message.answer(
+            f"📌 <b>{task['title']}</b>\n🎁 Мукофот: <b>+{task['reward']} балл</b>",
+            reply_markup=builder.as_markup(),
+            parse_mode="HTML"
+        )
+
+# Вазифани текшириш ва балл бериш callback
+@dp.callback_query(lambda c: c.data.startswith("check_task_") or c.data.startswith("noop_"))
+async def task_callback_handler(callback: types.CallbackQuery):
+    if callback.data.startswith("noop_"):
+        await callback.answer("Сиз бу вазифани аллақачон бажаргансиз!", show_alert=True)
+        return
+        
+    task_id = int(callback.data.split("_")[2])
+    user_id = callback.from_user.id
+    
+    target_task = next((t for t in tasks_list if t['id'] == task_id), None)
+    if not target_task:
+        await callback.answer("Вазифа топиilmadi!", show_alert=True)
+        return
+        
+    if user_id not in user_completed_tasks:
+        user_completed_tasks[user_id] = []
+        
+    if task_id in user_completed_tasks[user_id]:
+        await callback.answer("Сиз бу вазифа учун аллақачон балл олгансиз!", show_alert=True)
+        return
+        
+    user_completed_tasks[user_id].append(task_id)
+    if user_id not in user_balances:
+        user_balances[user_id] = 0
+        
+    user_balances[user_id] += target_task['reward']
+    
+    # Шунингдек, вазифа учун ҳам мукофот тариқасида зикрлар сонини қўшиб қўямиз (масалан, баллар * 10 миқдорида)
+    if user_id not in user_zikrs:
+        user_zikrs[user_id] = 0
+    user_zikrs[user_id] += target_task['reward'] * 10
+    
+    await callback.answer(f"🎉 Табриклаймиз! +{target_task['reward']} балл қўшилди.", show_alert=True)
+    
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🔗 Бажариш", url=target_task['url'])
+    builder.button(text="✅ Бажарилган", callback_data=f"noop_{task_id}")
+    builder.adjust(2)
+    
+    try:
+        await callback.message.edit_reply_markup(reply_markup=builder.as_markup())
+    except Exception:
+        pass
 
 
 # 5. Кнопка "Рекламани кўриш"
@@ -360,6 +432,8 @@ async def admin_balance_get_amount(message: types.Message, state: FSMContext):
     except ValueError:
         await message.answer("❌ Фақат бутун рақам киритинг (масалан: 50 ёки -20):")
 
+
+# --- Админ орқали янги вазифа қўшиш ---
 @dp.message(F.text == "📋 Вазифа қўшиш")
 async def admin_task_start(message: types.Message, state: FSMContext):
     if message.from_user.id != ADMIN_ID:
@@ -381,20 +455,30 @@ async def admin_task_get_reward(message: types.Message, state: FSMContext):
         return
     try:
         reward = int(message.text)
-        data = await state.get_data()
-        title = data.get("title")
-        
-        new_id = len(tasks_list) + 1
-        tasks_list.append({"id": new_id, "title": title, "reward": reward})
-        await state.clear()
-        
-        await message.answer(
-            f"✅ <b>Янги вазифа муваффақиятли қўшилди!</b>\n\n📌 Номи: {title}\n🎁 Мукофот: {reward} балл",
-            parse_mode="HTML",
-            reply_markup=get_admin_menu()
-        )
+        await state.update_data(reward=reward)
+        await state.set_state(AdminTask.waiting_url)
+        await message.answer("🔗 Вазифа учун ҳаволани (URL ёки t.me манзилини) киритинг:")
     except ValueError:
         await message.answer("❌ Фақат рақам киритинг (масалан: 50):")
+
+@dp.message(AdminTask.waiting_url)
+async def admin_task_get_url(message: types.Message, state: FSMContext):
+    if message.from_user.id != ADMIN_ID:
+        return
+    url = message.text.strip()
+    data = await state.get_data()
+    title = data.get("title")
+    reward = data.get("reward")
+    
+    new_id = len(tasks_list) + 1
+    tasks_list.append({"id": new_id, "title": title, "reward": reward, "url": url})
+    await state.clear()
+    
+    await message.answer(
+        f"✅ <b>Янги вазифа муваффақиятли қўшилди!</b>\n\n📌 Номи: {title}\n🎁 Мукофот: {reward} балл\n🔗 Ҳавола: {url}",
+        parse_mode="HTML",
+        reply_markup=get_admin_menu()
+    )
 
 
 # Запуск бота
