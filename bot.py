@@ -1,5 +1,6 @@
 import os
 import asyncio
+import json
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
@@ -16,14 +17,30 @@ dp = Dispatcher()
 
 # Муваққат базалар
 users = set()                  
-user_balances = {ADMIN_ID: 1000} # Мисол учун админга балл бериб турамиз
-user_names = {}                # Фойдаланувчи исмларини сақлаш учун
+user_balances = {ADMIN_ID: 1000} 
+user_names = {}                
 
-# Вазифалар базаси (id, title, reward, url)
-tasks_list = [                 
-    {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50, "url": "https://t.me/telegram"},
-    {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30, "url": "https://t.me/telegram"}
-]
+# Вазифаларни JSON файлда сақлаш ва ўқиш функциялари
+TASKS_FILE = "tasks.json"
+
+def load_tasks():
+    if os.path.exists(TASKS_FILE):
+        try:
+            with open(TASKS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    # Агар файл бўлмаса ёки хатолик бўлса бошланғич вазифаларни қайтарамиз
+    return [                 
+        {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50, "url": "https://t.me/telegram"},
+        {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30, "url": "https://t.me/telegram"}
+    ]
+
+def save_tasks(tasks):
+    with open(TASKS_FILE, "w", encoding="utf-8") as f:
+        json.dump(tasks, f, ensure_ascii=False, indent=4)
+
+tasks_list = load_tasks()
 
 # Фойдаланувчилар бажарган вазифаларини сақлаш: {user_id: [task_id_1, task_id_2]}
 user_completed_tasks = {}
@@ -45,7 +62,7 @@ class AdminTask(StatesGroup):
     waiting_url = State()
 
 
-# 🌟 Энг чиройли ва замонавий асосий меню
+# Асосий меню
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")  
@@ -54,11 +71,10 @@ def get_main_menu():
     builder.button(text="👥 Дўстларни таклиф")
     builder.button(text="📋 Вазифалар")
     builder.button(text="⭐ Рекламани кўриш")
-    
     builder.adjust(1, 2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
 
-# 🛠 Админ панелнинг чиройли менюси
+# Админ панел менюси
 def get_admin_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📊 Статистика")
@@ -89,13 +105,12 @@ async def cmd_start(message: types.Message):
         parse_mode="HTML"
     )
 
-# Асосий менюга қайтиш
 @dp.message(F.text == "⬅️ Асосий меню")
 async def back_to_main_menu(message: types.Message):
     await message.answer("✨ Асосий менюга қайтдингиз.", reply_markup=get_main_menu())
 
 
-# 1. Кнопка "Т А С Б Е Х Н И  О Ч И Ш"
+# 1. Т А С Б Е Х Н И  О Ч И Ш
 @dp.message(lambda msg: msg.text == "📿 Т А С Б Е Х Н И  О Ч И Ш")
 async def open_tasbih(message: types.Message):
     builder = InlineKeyboardBuilder()
@@ -109,12 +124,12 @@ async def open_tasbih(message: types.Message):
     )
 
 
-# 2. Кнопка "Пулни ечиб олиш"
+# 2. Пулни ечиб олиш
 @dp.message(lambda msg: msg.text == "💳 Пулни ечиб олиш")
 async def process_withdrawal(message: types.Message, state: FSMContext):
     await message.answer(
         "💳 <b>Маблағни ечиб олиш маркази</b>\n\n"
-        "Ҳурматли фойдаланувчи! ХОХЛОВЧИЛАР ЗИКР КИЛИБ ТУПЛАГАН БАЛЛАРИНИ НАХТ ПУЛ ШАКЛИДА ОЛИШЛАРИ МУМКИН .  Тўплаган балларни картага ёки тўлов тизимига ўтказиш учун реквизитларингизни юборинг.\n\n"
+        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки тўлов тизимига ўтказиш учун реквизитларингизни юборинг.\n\n"
         "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф)</i>\n\n"
         "❌ Бекор қилиш учун /cancel ни босинг.",
         parse_mode="HTML"
@@ -148,7 +163,7 @@ async def receive_withdrawal_details(message: types.Message, state: FSMContext):
         
         await message.answer(
             "✅ <b>Сўровингиз қабул қилинди!</b>\n\n"
-            "Администратор текширувидан кейин маблағ картангизга ўтказиб берилади. Иштикорингиз учун раҳмат!",
+            "Администратор текширувидан кейин маблағ картангизга ўтказиб берилади.",
             reply_markup=get_main_menu(),
             parse_mode="HTML"
         )
@@ -176,17 +191,13 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     await callback.answer("Бажарилди!")
 
 
-# 🏆 РЕЙТИНГ ТУГМАСИ (ФАҚАТ БАЛЛАР БИЛАН)
+# 🏆 Рейтинг
 @dp.message(lambda msg: msg.text == "🏆 Рейтинг")
 async def show_leaderboard(message: types.Message):
     sorted_users = sorted(user_balances.items(), key=lambda x: x[1], reverse=True)[:10]
     
     text = (
         "🏆 <b>Энг фаол фойдаланувчилар рейтинги (Топ-10)</b>\n\n"
-        "💡 <b>Баллар нима учун берилади?</b>\n"
-        "• Мини-иловада фаол бўлганингизда;\n"
-        "• Кунлик вазифаларни бажарганингизда;\n"
-        "• Рекламаларни кўриб лойиҳани қўллаб-қувватлаганингизда балансингизга баллар қўшилиб боради!\n\n"
         "━━━━━━━━━━━━━━━━━━━\n"
         "🏅 <b>Пешқадамлар рўйхати:</b>\n\n"
     )
@@ -196,15 +207,12 @@ async def show_leaderboard(message: types.Message):
     for index, (uid, balance) in enumerate(sorted_users):
         name = user_names.get(uid, f"Фойдаланувчи {uid}")
         medal = medals[index] if index < len(medals) else f"{index+1}."
-        
         text += f"{medal} <b>{name}</b> — 💎 <b>{balance} балл</b>\n\n"
         
-    text += "<i>✨ Қанча кўп фаол бўлсангиз, рейтинг юқорисига чиқасиз!</i>"
-    
     await message.answer(text, parse_mode="HTML", reply_markup=get_main_menu())
 
 
-# 3. Кнопка "Дўстларни таклиф"
+# 👥 Дўстларни таклиф
 @dp.message(lambda msg: msg.text == "👥 Дўстларни таклиф")
 async def process_referral(message: types.Message):
     bot_info = await bot.get_me()
@@ -212,15 +220,18 @@ async def process_referral(message: types.Message):
     
     await message.answer(
         "👥 <b>Дўстларни таклиф қилиш тизими</b>\n\n"
-        "Яқинларингизни таклиф қилинг, савобга шерик бўлинг ва биргаликда рейтингда пешқадам бўлинг!\n\n"
+        "Яқинларингизни таклиф қилинг ва биргаликда рейтингда пешқадам бўлинг!\n\n"
         f"🔗 <b>Сизнинг шахсий линкингиз:</b>\n<code>{ref_link}</code>",
         parse_mode="HTML"
     )
 
 
-# 4. Кнопка "Вазифалар"
+# 📋 Вазифалар
 @dp.message(lambda msg: msg.text == "📋 Вазифалар")
 async def process_tasks(message: types.Message):
+    global tasks_list
+    tasks_list = load_tasks()  # Хар сафар босилганда файлдан янги вазифаларни ўқиб оламиз
+    
     if not tasks_list:
         await message.answer("📋 Ҳозирча янги вазифалар мавжуд эмас.", reply_markup=get_main_menu())
         return
@@ -259,7 +270,7 @@ async def task_callback_handler(callback: types.CallbackQuery):
     
     target_task = next((t for t in tasks_list if t['id'] == task_id), None)
     if not target_task:
-        await callback.answer("Вазифа топиilmadi!", show_alert=True)
+        await callback.answer("Вазифа топилмади!", show_alert=True)
         return
         
     if user_id not in user_completed_tasks:
@@ -288,7 +299,7 @@ async def task_callback_handler(callback: types.CallbackQuery):
         pass
 
 
-# 5. Кнопка "Рекламани кўриш"
+# ⭐ Рекламани кўриш
 @dp.message(lambda msg: msg.text == "⭐ Рекламани кўриш")
 async def process_ads_view(message: types.Message):
     builder = InlineKeyboardBuilder()
@@ -296,7 +307,7 @@ async def process_ads_view(message: types.Message):
     
     await message.answer(
         "⭐ <b>Хайрли ишларни қўллаб-қувватланг</b>\n\n"
-        "Рекламани кўриш орқали лойиҳамизни ривожлантиришга ўз ҳиссангизни қўшинг. Эътиборингиз учун раҳмат!",
+        "Рекламани кўриш орқали лойиҳамизни ривожлантиришга ўз ҳиссангизни қўшинг.",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -336,7 +347,7 @@ async def admin_broadcast_start(message: types.Message, state: FSMContext):
         return
     await state.set_state(AdminBroadcast.waiting_for_message)
     await message.answer(
-        "📢 Барча фойдаланувчиларга юбормоқчи бўлган хабарингизни (матн, расм ёки видео) юборинг:\n\n"
+        "📢 Барча фойдаланувчиларга юбормоқчи бўлган хабарингизни юборинг:\n\n"
         "<i>Бекор қилиш учун 'отмена' денг.</i>",
         parse_mode="HTML"
     )
@@ -458,8 +469,15 @@ async def admin_task_get_url(message: types.Message, state: FSMContext):
     title = data.get("title")
     reward = data.get("reward")
     
+    global tasks_list
+    tasks_list = load_tasks() # Аввал файлаги янги маълумотларни ўқиймиз
+    
     new_id = len(tasks_list) + 1
-    tasks_list.append({"id": new_id, "title": title, "reward": reward, "url": url})
+    new_task = {"id": new_id, "title": title, "reward": reward, "url": url}
+    
+    tasks_list.append(new_task)
+    save_tasks(tasks_list) # JSON файлга сақлаймиз (энди сервер қайта ёқилса ҳам ўчиб кетмайди)
+    
     await state.clear()
     
     await message.answer(
