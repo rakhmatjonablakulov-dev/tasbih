@@ -14,9 +14,7 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 body {
-  background: linear-gradient(rgba(7, 28, 38, 0.6), rgba(2, 10, 15, 0.85)), 
-  url('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
-  background-size: cover;
+  background: linear-gradient(135deg, #030b1e 0%, #01050a 100%);
   color: #ffffff;
   min-height: 100vh;
   display: flex;
@@ -33,7 +31,7 @@ body::after {
   bottom: 0; left: 0; width: 100%; height: 35%;
   background: url('https://images.unsplash.com/photo-1565552431761-73c683fb2246?q=80&w=1000&auto=format&fit=crop') no-repeat bottom center;
   background-size: cover;
-  opacity: 0.25;
+  opacity: 0.22;
   pointer-events: none;
   z-index: 1;
 }
@@ -42,40 +40,64 @@ body::after {
   top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 1;
 }
+/* РАСМДАГИДЕК ЯРИМ ОЙ */
 .moon {
   position: absolute;
-  top: 175px; right: 28px;
-  width: 24px; height: 24px;
+  top: 155px; right: 35px;
+  width: 48px; height: 48px;
   background: transparent;
   border-radius: 50%;
-  box-shadow: -4px 2px 0 0 rgba(253, 224, 71, 0.95);
-  filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.9));
-  opacity: 0.9;
+  box-shadow: -7px 3px 0 0 #e2e8f0;
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.7));
+  opacity: 0.92;
   z-index: 2;
-  transform: rotate(35deg);
+  transform: rotate(25deg);
 }
+/* МЕТЕОРИТ (КОМЕТА) ЭФФЕКТИ */
+.meteor {
+  position: absolute;
+  top: 70px; left: 40px;
+  width: 140px; height: 3px;
+  background: linear-gradient(90deg, rgba(255,255,255,1), rgba(56,189,248,0.6), transparent);
+  transform: rotate(42deg);
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.9));
+  z-index: 2;
+  opacity: 0.85;
+}
+.meteor::after {
+  content: '';
+  position: absolute;
+  right: 0; top: -3px;
+  width: 9px; height: 9px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff, 0 0 20px #38bdf8;
+}
+/* ОСМОН ВА ЮЛДУЗЛАР */
 .stars {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 70px 110px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 130px 50px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 190px 160px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 250px 80px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 310px 140px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 50px 210px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 110px 270px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 170px 230px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 230px 310px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 290px 260px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 340px 330px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 90px 370px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 150px 410px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 210px 360px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 270px 420px, #ffffff, rgba(0,0,0,0));
+    radial-gradient(1.5px 1.5px at 15px 25px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 65px 95px, #e2e8f0, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 120px 45px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 175px 145px, #38bdf8, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 225px 75px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 285px 125px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 335px 65px, #e2e8f0, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 45px 185px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 105px 235px, #38bdf8, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 165px 205px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 225px 275px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 275px 225px, #e2e8f0, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 325px 295px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 85px 335px, #38bdf8, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 145px 375px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 205px 335px, #e2e8f0, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 265px 385px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 315px 355px, #38bdf8, rgba(0,0,0,0));
   background-repeat: repeat;
-  background-size: 350px 480px;
+  background-size: 350px 420px;
   opacity: 0.95;
   z-index: 2;
 }
@@ -424,6 +446,7 @@ body::after {
 <body>
 <div class="sky-elements">
   <div class="stars"></div>
+  <div class="meteor"></div>
   <div class="moon"></div>
 </div>
 
