@@ -19,6 +19,7 @@ dp = Dispatcher()
 users = set()                  
 user_balances = {ADMIN_ID: 1000} 
 user_names = {}                
+referred_users = set()         # Кимлар реф орқали кирганини сақлаш учун
 
 # Вазифаларни JSON файлда сақлаш ва ўқиш функциялари
 TASKS_FILE = "tasks.json"
@@ -61,7 +62,7 @@ class AdminTask(StatesGroup):
     waiting_url = State()
 
 
-# Асосий меню (Балансим тугмаси қўшилди)
+# Асосий меню
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")  
@@ -86,7 +87,7 @@ def get_admin_menu():
     return builder.as_markup(resize_keyboard=True)
 
 
-# Команда /start
+# Команда /start (Реферал тизими билан)
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
@@ -95,6 +96,34 @@ async def cmd_start(message: types.Message):
     
     if user_id not in user_balances:
         user_balances[user_id] = 0
+
+    # Реферал аргументини текшириш (Масалан: /start 8274122612)
+    args = message.text.split()
+    if len(args) > 1 and args[1].isdigit():
+        referrer_id = int(args[1])
+        
+        # Ўзини ўzi таклиф қилишини ва аллақачон рўйхатдан ўтганлигини текшириш
+        if referrer_id != user_id and user_id not in referred_users:
+            referred_users.add(user_id)
+            
+            if referrer_id not in user_balances:
+                user_balances[referrer_id] = 0
+            
+            # Таклиф қилган одамга 2000 балл қўшиш
+            user_balances[referrer_id] += 2000
+            
+            # Таклиф қилган одамга хабар юбориш
+            try:
+                ref_name = message.from_user.first_name or "Янги дўстингиз"
+                await bot.send_message(
+                    referrer_id,
+                    f"🎉 <b>Табриклаймиз!</b>\n\n"
+                    f"👥 Сизнинг реферал ҳаволангиз орқали <b>{ref_name}</b> ботга аъзо бўлди!\n"
+                    f"💎 Ҳисобингизга <b>+2000 балл</b> қўшилди.",
+                    parse_mode="HTML"
+                )
+            except Exception:
+                pass
 
     user_name = message.from_user.first_name
     await message.answer(
@@ -153,7 +182,7 @@ async def process_withdrawal(message: types.Message, state: FSMContext):
             f"💎 Жорий балансингиз: <b>{balance} балл</b>\n"
             f"📊 Энг кам миқдор: <b>{MIN_WITHDRAW} балл</b>\n"
             f"⚠️ Пул чиқариш учун яна <b>({needed})</b> балл етмайди.\n\n"
-            "<i>Кўпроқ вазифаларни бажаринг ва дўстларингизни таклиф қилинг!</i>",
+            "<i>Кўпроқ вазифаларни бажаринг ва дўстларингизни таклиф қилинг! (+2000 балл)</i>",
             parse_mode="HTML",
             reply_markup=get_main_menu()
         )
@@ -255,8 +284,9 @@ async def process_referral(message: types.Message):
     
     await message.answer(
         "👥 <b>Дўстларни таклиф қилиш тизими</b>\n\n"
-        "Яқинларингизни таклиф қилинг, пастдаги ҳаволани кўчириб дўстларингизга юборинг!\n\n"
-        f"🔗 <b>Сизнинг шахсий линкингиз:</b>\n<code>{ref_link}</code>",
+        "Яқинларингизни таклиф қилинг ва ҳар бир таклиф қилинган дўстингиз учун <b>2000 балл</b> олиб боринг!\n\n"
+        "🔗 <b>Сизнинг шахсий линкингиз:</b>\n"
+        f"<code>{ref_link}</code>",
         parse_mode="HTML"
     )
 
@@ -348,7 +378,6 @@ async def task_callback_handler(callback: types.CallbackQuery):
     
     await callback.answer("Вазифа муваффақиятли бажарилди!", show_alert=False)
     
-    # Хабар остига OK тугмасини чиқариш
     ok_builder = InlineKeyboardBuilder()
     ok_builder.button(text="OK", callback_data=f"ok_task_{task_id}")
 
