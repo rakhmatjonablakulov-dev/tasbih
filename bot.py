@@ -30,7 +30,6 @@ def load_tasks():
                 return json.load(f)
         except Exception:
             pass
-    # Агар файл бўлмаса ёки хатолик бўлса бошланғич вазифаларни қайтарамиз
     return [                 
         {"id": 1, "title": "📢 Расмий каналга обуна бўлиш", "reward": 50, "url": "https://t.me/telegram"},
         {"id": 2, "title": "⭐ Лойиҳани қўллаб-қувватлаш", "reward": 30, "url": "https://t.me/telegram"}
@@ -129,7 +128,7 @@ async def open_tasbih(message: types.Message):
 async def process_withdrawal(message: types.Message, state: FSMContext):
     await message.answer(
         "💳 <b>Маблағни ечиб олиш маркази</b>\n\n"
-        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки телефон ракамига утказиш учун реквизитларингизни юборинг.\n\n"
+        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки телефон рақамига ўтказиш учун реквизитларингизни юборинг.\n\n"
         "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф ва банк номи)</i>\n\n"
         "❌ Бекор қилиш учун /cancel ни босинг.",
         parse_mode="HTML"
@@ -220,7 +219,7 @@ async def process_referral(message: types.Message):
     
     await message.answer(
         "👥 <b>Дўстларни таклиф қилиш тизими</b>\n\n"
-        "Яқинларингизни таклиф қилинг , пастдаги хаволани копировка килиб дустларингизга юборинг!\n\n"
+        "Яқинларингизни таклиф қилинг, пастдаги ҳаволани кўчириб дўстларингизга юборинг!\n\n"
         f"🔗 <b>Сизнинг шахсий линкингиз:</b>\n<code>{ref_link}</code>",
         parse_mode="HTML"
     )
@@ -230,7 +229,7 @@ async def process_referral(message: types.Message):
 @dp.message(lambda msg: msg.text == "📋 Вазифалар")
 async def process_tasks(message: types.Message):
     global tasks_list
-    tasks_list = load_tasks()  # Хар сафар босилганда файлдан янги вазифаларни ўқиб оламиз
+    tasks_list = load_tasks()  
     
     if not tasks_list:
         await message.answer("📋 Ҳозирча янги вазифалар мавжуд эмас.", reply_markup=get_main_menu())
@@ -248,7 +247,7 @@ async def process_tasks(message: types.Message):
         if task['id'] in completed:
             builder.button(text="✅ Бажарилган", callback_data=f"noop_{task['id']}")
         else:
-            builder.button(text="🎁 Текшириш ва олиш", callback_data=f"check_task_{task['id']}")
+            builder.button(text="🎁 Текшириш", callback_data=f"check_task_{task['id']}")
             
         builder.adjust(2)
         
@@ -258,11 +257,19 @@ async def process_tasks(message: types.Message):
             parse_mode="HTML"
         )
 
-# Вазифани текшириш ва балл бериш callback
-@dp.callback_query(lambda c: c.data.startswith("check_task_") or c.data.startswith("noop_"))
+
+# =========================================================================
+# ВАЗИФАНИ ТЕКШИРИШ ВА БАЛЛ БЕРИШ CALLBACK (ОК тугмаси билан)
+# =========================================================================
+@dp.callback_query(lambda c: c.data.startswith("check_task_") or c.data.startswith("noop_") or c.data.startswith("ok_task_"))
 async def task_callback_handler(callback: types.CallbackQuery):
     if callback.data.startswith("noop_"):
         await callback.answer("Сиз бу вазифани аллақачон бажаргансиз!", show_alert=True)
+        return
+
+    # ОК тугмаси босилганда
+    if callback.data.startswith("ok_task_"):
+        await callback.message.delete()
         return
         
     task_id = int(callback.data.split("_")[2])
@@ -279,14 +286,42 @@ async def task_callback_handler(callback: types.CallbackQuery):
     if task_id in user_completed_tasks[user_id]:
         await callback.answer("Сиз бу вазифа учун аллақачон балл олгансиз!", show_alert=True)
         return
+
+    # Каналга обуна бўлганини текшириш
+    url = target_task['url']
+    if "t.me/" in url:
+        channel_username = "@" + url.split("t.me/")[-1].strip("/").split("?")[0]
         
+        try:
+            member = await bot.get_chat_member(chat_id=channel_username, user_id=user_id)
+            if member.status in ["left", "kicked"]:
+                await callback.answer(
+                    "❌ Сиз ҳали каналга обуна бўлмагансиз!\nИлтимос, аввал обуна бўлинг ва кейин текширинг.", 
+                    show_alert=True
+                )
+                return
+        except Exception:
+            pass
+
+    # Балл қўшиш
     user_completed_tasks[user_id].append(task_id)
     if user_id not in user_balances:
         user_balances[user_id] = 0
         
-    user_balances[user_id] += target_task['reward']
+    reward = target_task['reward']
+    user_balances[user_id] += reward
     
-    await callback.answer(f"🎉 Табриклаймиз! +{target_task['reward']} балл қўшилди.", show_alert=True)
+    await callback.answer("Вазифа муваффақиятли бажарилди!", show_alert=False)
+    
+    # Хабар остига OK тугмасини чиқариш
+    ok_builder = InlineKeyboardBuilder()
+    ok_builder.button(text="OK", callback_data=f"ok_task_{task_id}")
+
+    await callback.message.answer(
+        f"✅ Ҳисобингизга <b>({reward})</b> балл қўшилди!",
+        reply_markup=ok_builder.as_markup(),
+        parse_mode="HTML"
+    )
     
     builder = InlineKeyboardBuilder()
     builder.button(text="🔗 Бажариш", url=target_task['url'])
@@ -303,11 +338,11 @@ async def task_callback_handler(callback: types.CallbackQuery):
 @dp.message(lambda msg: msg.text == "⭐ Рекламани кўриш")
 async def process_ads_view(message: types.Message):
     builder = InlineKeyboardBuilder()
-    builder.button(text="⭐ Рекламани кўриш ва килган зикрлар сонини саклаб колиш", web_app=types.WebAppInfo(url=WEBAPP_URL))
+    builder.button(text="⭐ Рекламани кўриш ва қилинган зикрлар сонини сақлаб қолиш", web_app=types.WebAppInfo(url=WEBAPP_URL))
     
     await message.answer(
-        "⭐ <b>Тасбехлар сони учиб кетмаслиги учун</b>\n\n"
-        "Рекламани кўриш орқали ,лойихамизни куллаб кувватланг.",
+        "⭐ <b>Тасбеҳлар сони учиб кетмаслиги учун</b>\n\n"
+        "Рекламани кўриш орқали лойиҳамизни қўллаб-қувватланг.",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
@@ -470,13 +505,13 @@ async def admin_task_get_url(message: types.Message, state: FSMContext):
     reward = data.get("reward")
     
     global tasks_list
-    tasks_list = load_tasks() # Аввал файлаги янги маълумотларни ўқиймиз
+    tasks_list = load_tasks() 
     
     new_id = len(tasks_list) + 1
     new_task = {"id": new_id, "title": title, "reward": reward, "url": url}
     
     tasks_list.append(new_task)
-    save_tasks(tasks_list) # JSON файлга сақлаймиз (энди сервер қайта ёқилса ҳам ўчиб кетмайди)
+    save_tasks(tasks_list) 
     
     await state.clear()
     
