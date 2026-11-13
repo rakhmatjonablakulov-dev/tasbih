@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Муборак Тасбеҳ ва Намоз вақтлари</title>
+<title>Тасбеҳ ва зикрлар</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src='//libtl.com/sdk.js' data-zone='12215662' data-sdk='show_12215662'></script>
 <style>
@@ -44,7 +44,7 @@ body::after {
 }
 .moon {
   position: absolute;
-  top: 175px; right: 28px;
+  top: 155px; left: 24px;
   width: 24px; height: 24px;
   background: transparent;
   border-radius: 50%;
@@ -52,7 +52,7 @@ body::after {
   filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.9));
   opacity: 0.9;
   z-index: 2;
-  transform: rotate(35deg);
+  transform: rotate(35deg) scaleX(-1);
 }
 .stars {
   position: absolute;
@@ -66,14 +66,14 @@ body::after {
     radial-gradient(3px 3px at 310px 140px, #fde047, rgba(0,0,0,0)),
     radial-gradient(1.5px 1.5px at 50px 210px, #ffffff, rgba(0,0,0,0)),
     radial-gradient(2px 2px at 110px 270px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(2.5px 2.5px at 170px 230px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(2.5px 2.5px at 170px 230px, #fde047, rgba(0,0,0,0)),
     radial-gradient(2px 2px at 230px 310px, #ffffff, rgba(0,0,0,0)),
     radial-gradient(3px 3px at 290px 260px, #fde047, rgba(0,0,0,0)),
     radial-gradient(1.5px 1.5px at 340px 330px, #ffffff, rgba(0,0,0,0)),
     radial-gradient(2.5px 2.5px at 90px 370px, #fde047, rgba(0,0,0,0)),
     radial-gradient(2px 2px at 150px 410px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 210px 360px, #fde047, rgba(0,0,0,0)),
-    radial-gradient(3px 3px at 270px 420px, #ffffff, rgba(0,0,0,0));
+    radial-gradient(2px 2px at 210px 360px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(3px 3px at 270px 420px, #fde047, rgba(0,0,0,0));
   background-repeat: repeat;
   background-size: 350px 480px;
   opacity: 0.95;
