@@ -61,10 +61,11 @@ class AdminTask(StatesGroup):
     waiting_url = State()
 
 
-# Асосий меню
+# Асосий меню (Балансим тугмаси қўшилди)
 def get_main_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📿 Т А С Б Е Х Н И  О Ч И Ш")  
+    builder.button(text="💰 Балансим")
     builder.button(text="💳 Пулни ечиб олиш")
     builder.button(text="🏆 Рейтинг")
     builder.button(text="👥 Дўстларни таклиф")
@@ -123,12 +124,45 @@ async def open_tasbih(message: types.Message):
     )
 
 
-# 2. Пулни ечиб олиш
+# 💰 Балансим
+@dp.message(lambda msg: msg.text == "💰 Балансим")
+async def check_balance(message: types.Message):
+    user_id = message.from_user.id
+    balance = user_balances.get(user_id, 0)
+    
+    await message.answer(
+        f"💰 <b>Сизнинг ҳисобингиз:</b>\n\n"
+        f"💎 Жорий баланс: <b>{balance} балл</b>\n"
+        f"💳 Энг кам пул ечиш миқдори: <b>500 000 балл</b>",
+        parse_mode="HTML",
+        reply_markup=get_main_menu()
+    )
+
+
+# 2. Пулни ечиб олиш (Шарт ва текширув билан)
 @dp.message(lambda msg: msg.text == "💳 Пулни ечиб олиш")
 async def process_withdrawal(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    balance = user_balances.get(user_id, 0)
+    MIN_WITHDRAW = 500000
+
+    if balance < MIN_WITHDRAW:
+        needed = MIN_WITHDRAW - balance
+        await message.answer(
+            f"❌ <b>Пулни ечиб олиш учун балансингиз етарли эмас!</b>\n\n"
+            f"💎 Жорий балансингиз: <b>{balance} балл</b>\n"
+            f"📊 Энг кам миқдор: <b>{MIN_WITHDRAW} балл</b>\n"
+            f"⚠️ Пул чиқариш учун яна <b>({needed})</b> балл етмайди.\n\n"
+            "<i>Кўпроқ вазифаларни бажаринг ва дўстларингизни таклиф қилинг!</i>",
+            parse_mode="HTML",
+            reply_markup=get_main_menu()
+        )
+        return
+
     await message.answer(
         "💳 <b>Маблағни ечиб олиш маркази</b>\n\n"
-        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки телефон рақамига ўтказиш учун реквизитларингизни юборинг.\n\n"
+        f"💎 Балансингиз етарли: <b>{balance} балл</b>\n\n"
+        "Тўплаган балларни картага ёки телефон рақамига ўтказиш учун реквизитларингизни юборинг.\n\n"
         "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф ва банк номи)</i>\n\n"
         "❌ Бекор қилиш учун /cancel ни босинг.",
         parse_mode="HTML"
@@ -144,11 +178,13 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 async def receive_withdrawal_details(message: types.Message, state: FSMContext):
     user = message.from_user
     details = message.text
+    balance = user_balances.get(user.id, 0)
     
     admin_text = (
         f"🔔 <b>Янги пул чиқариш сўрови!</b>\n\n"
         f"👤 Фойдаланувчи: @{user.username} (ID: <code>{user.id}</code>)\n"
         f"Исми: {user.first_name}\n"
+        f"💎 Баланси: {balance} балл\n"
         f"💳 Реквизит:\n<code>{details}</code>"
     )
     
@@ -182,7 +218,7 @@ async def admin_payment_decision(callback: types.CallbackQuery):
     
     if action == "yes":
         await bot.send_message(user_id, "🎉 <b>Табриклаймиз!</b> Пул чиқариш сўровингиз тасдиқланди ва маблағ картангизга ўтказилди!")
-        await callback.message.edit_text(callback.message.text + "\n\n<b>✅ Статус: ТЎЛАНДИ ВА ЯКУНланДИ</b>", parse_mode="HTML")
+        await callback.message.edit_text(callback.message.text + "\n\n<b>✅ Статус: ТЎЛАНДИ ВА ЯКУНЛАНДИ</b>", parse_mode="HTML")
     else:
         await bot.send_message(user_id, "❌ Афсус, сўровингиз маълумотлар хатолиги ёки бошқа сабабга кўра рад этилди.")
         await callback.message.edit_text(callback.message.text + "\n\n<b>❌ Статус: РАД ЭТИЛДИ</b>", parse_mode="HTML")
@@ -259,7 +295,7 @@ async def process_tasks(message: types.Message):
 
 
 # =========================================================================
-# ВАЗИФАНИ ТЕКШИРИШ ВА БАЛЛ БЕРИШ CALLBACK (ОК тугмаси билан)
+# ВАЗИФАНИ ТЕКШИРИШ ВА БАЛЛ БЕРИШ CALLBACK
 # =========================================================================
 @dp.callback_query(lambda c: c.data.startswith("check_task_") or c.data.startswith("noop_") or c.data.startswith("ok_task_"))
 async def task_callback_handler(callback: types.CallbackQuery):
@@ -267,7 +303,6 @@ async def task_callback_handler(callback: types.CallbackQuery):
         await callback.answer("Сиз бу вазифани аллақачон бажаргансиз!", show_alert=True)
         return
 
-    # ОК тугмаси босилганда
     if callback.data.startswith("ok_task_"):
         await callback.message.delete()
         return
