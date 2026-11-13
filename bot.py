@@ -75,19 +75,20 @@ def get_main_menu():
     builder.adjust(1, 2, 2, 2)
     return builder.as_markup(resize_keyboard=True)
 
-# Админ панел менюси
+# Админ панел менюси (Фойдаланувчилар тугмаси қўшилди)
 def get_admin_menu():
     builder = ReplyKeyboardBuilder()
     builder.button(text="📊 Статистика")
+    builder.button(text="👥 Фойдаланувчилар")
     builder.button(text="📢 Рассылка юбориш")
     builder.button(text="💰 Балансни бошқариш")
     builder.button(text="📋 Вазифа қўшиш")
     builder.button(text="⬅️ Асосий меню")
-    builder.adjust(2, 2, 1)
+    builder.adjust(2, 2, 2, 1)
     return builder.as_markup(resize_keyboard=True)
 
 
-# Команда /start (Реферал тизими билан)
+# Команда /start (Чиройли кутиб олиш ва реферал тизими билан)
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
@@ -102,7 +103,6 @@ async def cmd_start(message: types.Message):
     if len(args) > 1 and args[1].isdigit():
         referrer_id = int(args[1])
         
-        # Ўзини ўzi таклиф қилишини ва аллақачон рўйхатдан ўтганлигини текшириш
         if referrer_id != user_id and user_id not in referred_users:
             referred_users.add(user_id)
             
@@ -125,11 +125,23 @@ async def cmd_start(message: types.Message):
             except Exception:
                 pass
 
-    user_name = message.from_user.first_name
+    user_name = message.from_user.first_name or "Қадрли инсон"
+    
+    # Чиройли кутиб олиш хабари
+    welcome_text = (
+        f"✨ <b>Ассалому алайкум ва роҳматуллоҳи ва барокатуҳ, {user_name}!</b>\n\n"
+        f"🌙 <b>«Муборак Тасбеҳ ва Намоз»</b> ботига хуш келибсиз!\n\n"
+        f"<i>«Огоҳ бўлингизким, Аллоҳни зикр қилиш билан қалблар ором олур!»</i> (Раъд сураси, 28-оят).\n\n"
+        f"Ушбу бот орқали сиз:\n"
+        f"• 📿 **Интерактив мини-илова** орқали зикр ва саловатларни адашмасдан санашингиз <i>(ажри Аллоҳдан)</i>;\n"
+        f"• 🕌 **Намоз вақтлари** ва азон эслатмаларидан хабардор бўлишингиз;\n"
+        f"• 👥 **Дўстларни таклиф қилиб**, ҳар бири учун **2000 балл** олишингиз;\n"
+        f"• 📋 Вазифалар ва рекламаларни кўриб **баллар жамғаришингиз ва бот томонидан бериладиган пул мукофотларига эга бўлишингиз** мумкин.\n\n"
+        f"👇 <i>Қуйидаги менюдан керакли бўлимни танланг:</i>"
+    )
+
     await message.answer(
-        f"✨ Ассалому алайкум, <b>{user_name}</b>!\n\n"
-        "🌙 <b>Муборак Тасбеҳ</b> расмий мини-илова ботига хуш келибсиз.\n\n"
-        "<i>Аллоҳни зикр қилинг, қалбингиз ором олади. 👇</i>",
+        welcome_text,
         reply_markup=get_main_menu(),
         parse_mode="HTML"
     )
@@ -439,6 +451,30 @@ async def admin_stats(message: types.Message):
         parse_mode="HTML",
         reply_markup=get_admin_menu()
     )
+
+# 👥 Фойдаланувчилар рўйхатини кўриш (Админ учун)
+@dp.message(F.text == "👥 Фойдаланувчилар")
+async def admin_users_list(message: types.Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    
+    if not users:
+        await message.answer("📭 Ҳозирча ботга кирган фойдаланувчилар йўқ.", reply_markup=get_admin_menu())
+        return
+
+    text = f"👥 <b>Боtdagi фойдаланувчилар рўйхати (Жами: {len(users)} та):</b>\n\n"
+    
+    count = 1
+    for uid in list(users)[-30:]:  # Охирги 30 та фойдаланувчини кўрсатади
+        name = user_names.get(uid, "Номаълум")
+        balance = user_balances.get(uid, 0)
+        text += f"{count}. {name} (ID: <code>{uid}</code>) — 💎 {balance} балл\n"
+        count += 1
+
+    if len(users) > 30:
+        text += f"\n<i>...ва яна {len(users) - 30} та фойдаланувчи бор.</i>"
+
+    await message.answer(text, parse_mode="HTML", reply_markup=get_admin_menu())
 
 @dp.message(F.text == "📢 Рассылка юбориш")
 async def admin_broadcast_start(message: types.Message, state: FSMContext):
