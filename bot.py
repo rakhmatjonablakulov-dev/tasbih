@@ -353,11 +353,11 @@ async def process_referral(message: types.Message):
         parse_mode="HTML"
     )
 
-# 📋 Вазифалар (Фақат бажарилмаган ва муддати ўтмаганларини кўрсатиш)
+# 📋 Вазифалар
 @dp.message(F.text == "📋 Вазифалар")
 async def process_tasks(message: types.Message):
     global tasks_list
-    tasks_list = load_tasks()  # Муддати ўтганларини тозалаб юклайди
+    tasks_list = load_tasks()
     
     if not tasks_list:
         await message.answer("📋 Ҳозирча янги вазифалар мавжуд эмас.", reply_markup=get_main_menu())
@@ -366,7 +366,6 @@ async def process_tasks(message: types.Message):
     user_id = message.from_user.id
     completed_tasks_list = user_completed_tasks.get(user_id, [])
     
-    # Фақат фойдаланувчи ҳали бажармаган вазифаларни саралаб оламиз
     active_tasks = [task for task in tasks_list if task['id'] not in completed_tasks_list]
     
     if not active_tasks:
@@ -714,7 +713,7 @@ async def admin_manage_tasks(message: types.Message):
 
         await message.answer(
             f"📌 <b>{task['title']}</b>\n🎁 Мукофот: {task['reward']} балл\n⏳ Муддати: {expires_str}\n🔗 Ҳавола: {task['url']}",
-            reply_markup=builder.as_camp_builder if 'builder' in locals() else builder.as_markup(),
+            reply_markup=builder.as_markup(),
             parse_mode="HTML"
         )
 
