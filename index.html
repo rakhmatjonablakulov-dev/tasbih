@@ -445,8 +445,8 @@ body {
 
 <div class="ads-button-container">
   <button class="ads-btn" id="adsBtn">
-    <span id="adsTitleText">⭐ Лойиҳани ривожлантириш учун босинг ⭐</span><br>
-    <span id="adsSubText" style="font-size: 9px; color: #ffeaa7; font-weight: normal;">Илтимос очилган сайтни 10 секунд кузатинг.</span>
+    <span id="adsTitleText">⭐ Реклама кўриш орқали балл олиш ⭐</span><br>
+    <span id="adsSubText" style="font-size: 9px; color: #ffeaa7; font-weight: normal;">Босинг ва ҳисобингизга балл қўшинг.</span>
   </button>
 </div>
 
@@ -512,8 +512,8 @@ const translations = {
     reset: "Ноллаш 🔄",
     suffix: "марта ўқилди",
     nextLabel: "Кейинги:",
-    adsTitle: "⭐ Лойиҳани ривожлантириш учун босинг ⭐",
-    adsSub: "Илтимос очилган сайтни 10 секунд кузатинг.",
+    adsTitle: "⭐ Реклама кўриш орқали балл олиш ⭐",
+    adsSub: "Босинг ва ҳисобингизга балл қўшинг.",
     prayerModalTitle: "🕌 Намоз вақтлари ва Азон",
     statModalTitle: "📊 Ҳар бир зикрнинг миқдори",
     collModalTitle: "📚 Зикр ва Саловатлар тўплами",
@@ -535,8 +535,8 @@ const translations = {
     reset: "Сброс 🔄",
     suffix: "прочитано раз",
     nextLabel: "Следующий:",
-    adsTitle: "⭐ Нажмите для развития проекта ⭐",
-    adsSub: "Пожалуйста, посмотрите открывшийся сайт 10 секунд.",
+    adsTitle: "⭐ Получить балл за просмотр рекламы ⭐",
+    adsSub: "Нажмите и добавьте баллы на баланс.",
     prayerModalTitle: "🕌 Время намаза и Азан",
     statModalTitle: "📊 Количество каждого зикра",
     collModalTitle: "📚 Сборник зикров и салаватов",
@@ -552,8 +552,8 @@ const translations = {
 
 let currentLangCode = 'uz';
 let currentZikrIndex = 0;
+let userBalance = parseInt(localStorage.getItem('user_balance')) || 0;
 
-// 1-хато тузатилди: Аллоҳу акбар арабча матни тўғриланди
 const i18nZikrs = [
   { uz: "Субҳаналлоҳ", ru: "Субханаллах", arabic: "سُبْحَانَ ٱللَّهِ", key: "tasbih_subhanallah" },
   { uz: "Алҳамдулиллаҳ", ru: "Альхамдулиллах", arabic: "ٱلْحَمْدُ لِلَّهِ", key: "tasbih_alhamdulillah" },
@@ -590,7 +590,7 @@ const zikrCollectionData = [
   },
   {
     uz: "Астағфируллоҳал азийм ва атубу илайҳ",
-    ru: "Астагфируллахаль 'Азима ва атубу иляйх",
+    ru: "Астагфируллахаль 'Азима ва атубу iляйх",
     arabic: "أَسْتَغْفِرُ اللهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
     meaningUz: "Буюк Аллоҳдан мағфират сўрайман ва Унга тавба қиламан.",
     meaningRu: "Прошу прощения у Великого Аллаха и каюсь перед Ним.",
@@ -606,7 +606,6 @@ const zikrCollectionData = [
   }
 ];
 
-// DOM элементлари
 const langToggleBtn = document.getElementById('langToggleBtn');
 const ratingBtn = document.getElementById('ratingBtn');
 const prayerBtn = document.getElementById('prayerBtn');
@@ -628,7 +627,6 @@ const nextPrayerCountdown = document.getElementById('nextPrayerCountdown');
 const azhanAudio = document.getElementById('azhanAudio');
 const citySelect = document.getElementById('citySelect');
 
-// Захира намоз вақтлари (офлайн ҳолат учун)
 let prayerTimings = {
   "Tashkent": { Fajr: "05:30", Dhuhr: "12:15", Asr: "15:40", Maghrib: "17:10", Isha: "18:40" },
   "Samarkand": { Fajr: "05:35", Dhuhr: "12:20", Asr: "15:45", Maghrib: "17:15", Isha: "18:45" },
@@ -642,7 +640,6 @@ let prayerTimings = {
 let selectedCity = localStorage.getItem('selected_city') || "Tashkent";
 citySelect.value = selectedCity;
 
-// Интернет орқали бугунги аниқ намоз вақтларини олиш (Aladhan API, Ҳанафий мазҳаби - school=1)
 async function fetchLivePrayerTimes(city) {
   try {
     const res = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Uzbekistan&method=3&school=1`);
@@ -658,13 +655,10 @@ async function fetchLivePrayerTimes(city) {
       };
       renderPrayerTimes();
     }
-  } catch (e) {
-    // Интернет бўлмаса, захира вақтлар ишлайверади
-  }
+  } catch (e) {}
 }
 fetchLivePrayerTimes(selectedCity);
 
-// Браузер аудиосини фойдаланувчининг биринчи босишида фаоллаштириш
 let audioUnlocked = false;
 document.body.addEventListener('click', () => {
   if (!audioUnlocked) {
@@ -727,7 +721,6 @@ function updateClockAndPrayers() {
   const currentStr = `${h}:${m}`;
   const tPrayers = translations[currentLangCode].prayers;
 
-  // Вақти кирганда Азон чалиш
   for (let [key, timeVal] of Object.entries(times)) {
     if (currentStr === timeVal && lastAzhanPlayedMinute !== currentStr) {
       lastAzhanPlayedMinute = currentStr;
@@ -735,7 +728,6 @@ function updateClockAndPrayers() {
     }
   }
 
-  // Кейинги намозни ва қолган вақтни (таймерни) ҳисоблаш
   let nextKey = "Fajr";
   let nextTimeStr = times.Fajr;
   let isTomorrow = true;
@@ -783,7 +775,6 @@ function renderPrayerTimes() {
   document.getElementById('prayerTimesList').innerHTML = html;
 }
 
-// Азонни синаб кўриш тугмаси
 document.getElementById('testAzhanBtn').addEventListener('click', () => {
   if (azhanAudio.paused) {
     azhanAudio.play().catch(() => {});
@@ -793,7 +784,6 @@ document.getElementById('testAzhanBtn').addEventListener('click', () => {
   }
 });
 
-// Тўпламни чиқариш
 function renderCollection() {
   const t = translations[currentLangCode];
   let html = "";
@@ -821,7 +811,6 @@ window.selectFromCollection = function(targetIdx, arText) {
   if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 };
 
-// Модалкаларни бошқариш
 collectionBtn.addEventListener('click', () => {
   renderCollection();
   document.getElementById('collectionModal').classList.add('active');
@@ -876,7 +865,6 @@ tabs.forEach((tab, idx) => {
   });
 });
 
-// Асосий Тасбеҳ тугмаси
 tapBtn.addEventListener('click', () => {
   const zikrObj = i18nZikrs[currentZikrIndex];
   let count = (parseInt(localStorage.getItem(zikrObj.key)) || 0) + 1;
@@ -886,7 +874,6 @@ tapBtn.addEventListener('click', () => {
   cycleIndicator.textContent = `${count % 33 === 0 ? 33 : count % 33} / 33`;
   totalBadge.textContent = `${translations[currentLangCode].totalText}: ${calculateTotalZikr()}`;
 
-  // Ҳар 33 тада алоҳида вибрация ва хабар
   if (count % 33 === 0) {
     milestoneToast.textContent = `✨ ${count} та тўлди! ✨`;
     milestoneToast.classList.add('show');
@@ -897,11 +884,59 @@ tapBtn.addEventListener('click', () => {
   }
 });
 
+// МОНЕТАГ РЕКЛАМА ВА БОТГА БАЛЛ ЮБОРИШ ФУНКЦИЯСИ
 adsBtn.addEventListener('click', () => {
   try {
-    if (typeof show_12215662 === 'function') show_12215662();
+    if (typeof show_12215662 === 'function') {
+      show_12215662();
+    }
   } catch (e) {}
+
+  // Баллни автоматик қўшиш ва ботга юбориш
+  setTimeout(() => {
+    grantAdReward();
+  }, 2500);
+
+  if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 });
+
+function grantAdReward() {
+  let rewardAmount = 10;
+  userBalance += rewardAmount;
+  localStorage.setItem('user_balance', userBalance);
+
+  showToast(`🎉 Табриклаймиз! Реклама учун +${rewardAmount} балл қўшилди! (Баланс: ${userBalance})`);
+
+  if (tg) {
+    try {
+      tg.sendData(JSON.stringify({ action: "add_bonus", points: rewardAmount }));
+    } catch (err) {
+      try {
+        tg.sendData("watched_ad");
+      } catch (e) {}
+    }
+  }
+}
+
+function showToast(text) {
+  let toast = document.getElementById('customToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'customToast';
+    toast.style.cssText = `
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: #f1c40f; color: #0b3c2e; padding: 8px 16px; border-radius: 20px;
+      font-size: 11px; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      transition: opacity 0.3s ease; text-align: center; max-width: 90%;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = text;
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+  }, 3500);
+}
 
 resetBtn.addEventListener('click', () => {
   const zikrObj = i18nZikrs[currentZikrIndex];
