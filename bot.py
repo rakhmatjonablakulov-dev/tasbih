@@ -129,8 +129,8 @@ async def open_tasbih(message: types.Message):
 async def process_withdrawal(message: types.Message, state: FSMContext):
     await message.answer(
         "💳 <b>Маблағни ечиб олиш маркази</b>\n\n"
-        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки тўлов тизимига ўтказиш учун реквизитларингизни юборинг.\n\n"
-        "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф)</i>\n\n"
+        "Ҳурматли фойдаланувчи! Тўплаган балларни картага ёки телефон ракамига утказиш учун реквизитларингизни юборинг.\n\n"
+        "<i>(Масалан: 8600 1234 5678 9012 / Исм Шариф ва банк номи)</i>\n\n"
         "❌ Бекор қилиш учун /cancel ни босинг.",
         parse_mode="HTML"
     )
@@ -220,7 +220,7 @@ async def process_referral(message: types.Message):
     
     await message.answer(
         "👥 <b>Дўстларни таклиф қилиш тизими</b>\n\n"
-        "Яқинларингизни таклиф қилинг ва биргаликда рейтингда пешқадам бўлинг!\n\n"
+        "Яқинларингизни таклиф қилинг , пастдаги хаволани копировка килиб дустларингизга юборинг!\n\n"
         f"🔗 <b>Сизнинг шахсий линкингиз:</b>\n<code>{ref_link}</code>",
         parse_mode="HTML"
     )
@@ -303,11 +303,11 @@ async def task_callback_handler(callback: types.CallbackQuery):
 @dp.message(lambda msg: msg.text == "⭐ Рекламани кўриш")
 async def process_ads_view(message: types.Message):
     builder = InlineKeyboardBuilder()
-    builder.button(text="⭐ Рекламани кўриш ва қўллаб-қувватлаш", web_app=types.WebAppInfo(url=WEBAPP_URL))
+    builder.button(text="⭐ Рекламани кўриш ва килган зикрлар сонини саклаб колиш", web_app=types.WebAppInfo(url=WEBAPP_URL))
     
     await message.answer(
-        "⭐ <b>Хайрли ишларни қўллаб-қувватланг</b>\n\n"
-        "Рекламани кўриш орқали лойиҳамизни ривожлантиришга ўз ҳиссангизни қўшинг.",
+        "⭐ <b>Тасбехлар сони учиб кетмаслиги учун</b>\n\n"
+        "Рекламани кўриш орқали ,лойихамизни куллаб кувватланг.",
         reply_markup=builder.as_markup(),
         parse_mode="HTML"
     )
